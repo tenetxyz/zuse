@@ -165,4 +165,50 @@ contract InventoryTest is MudTest {
 
     vm.stopPrank();
   }
+
+  function testDropItemIntoAir() public {
+    vm.startPrank(alice, alice);
+
+    (, bytes32 agentObjectEntityId) = setupAgent();
+
+    VoxelCoord memory mineCoord = VoxelCoord(initialAgentCoord.x, initialAgentCoord.y - 1, initialAgentCoord.z - 1);
+    bytes32 objectTypeId = world.getTerrainObjectTypeId(mineCoord);
+    world.mine(agentObjectEntityId, objectTypeId, mineCoord);
+    // get the inventory of the agent
+    bytes32[][] memory agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
+    assertTrue(agentObjects.length == 1, "Agent does not have inventory");
+    assertTrue(agentObjects[0].length == 1, "Agent does not have inventory");
+    bytes32 agentInventoryId = agentObjects[0][0];
+    bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
+    assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+    assertTrue(
+      InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+      "Agent does not have correct number of mined objects in inventory"
+    );
+
+    VoxelCoord memory dropCoord = VoxelCoord(initialAgentCoord.x + 1, initialAgentCoord.y, initialAgentCoord.z + 1);
+    assertTrue(world.getTerrainObjectTypeId(dropCoord) == AirObjectID, "Drop coord is not air");
+    world.transfer(agentObjectEntityId, dropCoord, agentInventoryId, 1);
+    bytes32 dropEntityId = getEntityAtCoord(store, dropCoord);
+    assertTrue(uint256(dropEntityId) != 0, "Drop entity not found at coord");
+    bytes32 dropObjectEntityId = ObjectEntity.get(store, dropEntityId);
+    assertTrue(dropObjectEntityId != bytes32(0), "Drop entity not found at coord");
+
+    // get the inventory of the agent
+    agentObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(agentObjectEntityId));
+    assertTrue(agentObjects.length == 0, "Agent has inventory");
+
+    // bytes32[][] memory airObjects = getKeysWithValue(store, InventoryTableId, Inventory.encode(dropObjectEntityId));
+    // assertTrue(airObjects.length == 1, "Air does not have inventory");
+    // assertTrue(airObjects[0].length == 1, "Air does not have inventory");
+    // bytes32 airInventoryId = airObjects[0][0];
+    // bytes32 airInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, airInventoryId);
+    // assertTrue(airInventoryObjectTypeId == objectTypeId, "Air does not have mined object in inventory");
+    // assertTrue(
+    //   InventoryObject.getNumObjects(store, airInventoryId) == 1,
+    //   "Air does not have correct number of mined objects in inventory"
+    // );
+
+    vm.stopPrank();
+  }
 }

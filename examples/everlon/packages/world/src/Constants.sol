@@ -74,6 +74,10 @@ bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
 
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
+bytes32 constant DiamondAxeObjectID = bytes32(keccak256("diamond-axe"));
+bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-axe"));
+
+bytes32 constant DiamondCubeObjectID = bytes32(keccak256("diamond-cube"));
 
 // Agents
 bytes32 constant BuilderObjectID = bytes32(keccak256("builder"));
@@ -102,6 +106,7 @@ uint256 constant SILVER_ORE_MASS = 9;
 uint256 constant GOLD_ORE_MASS = 10;
 uint256 constant DIAMOND_ORE_MASS = 15;
 uint256 constant DIAMOND_MASS = 60;
+uint256 constant DIAMOND_CUBE_MASS = 480; //60 * 8 = 480
 
 uint256 constant NEPTUNIUM_ORE_MASS = 20;
 
@@ -136,6 +141,9 @@ uint256 constant RUBBER_LEAF_MASS = 1;
 uint256 constant CHEST_MASS = 24;
 
 uint256 constant WOODEN_PICK_MASS = 16;
+uint256 constant DIAMOND_AXE_MASS = 196;
+uint256 constant DIAMOND_PICK_MASS = 196;
+
 uint256 constant PAPER_MASS = 1;
 uint256 constant BASALT_BRICK_MASS = 10;
 uint256 constant BASALT_CARVED_MASS = 11;

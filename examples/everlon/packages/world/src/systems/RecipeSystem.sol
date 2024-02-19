@@ -14,13 +14,13 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, WoodenPickObjectID, WOODEN_PICK_MASS } from "@tenet-world/src/Constants.sol";
+import { OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
   // TODO: Make this only callable once
   function initRecipes() public {
-    // Oak Log -> Oak Lumber
+    // 1 oak log -> 4 oak lumber
 
     // Recipe inputs
     bytes32[] memory inputObjectTypeIds = new bytes32[](1);
@@ -50,8 +50,10 @@ contract RecipeSystem is System {
       })
     );
 
-    // Oak Lumber x4 -> Wooden Pick
 
+    // 4 oak log -> 1 wooden pick
+
+    // Recipe inputs
     inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = OakLogObjectID;
     inputObjectTypeAmounts = new uint8[](1);
@@ -76,6 +78,143 @@ contract RecipeSystem is System {
         outputObjectTypeAmounts: outputObjectTypeAmounts,
         outputObjectProperties: abi.encode(outputObjectProperties)
       })
+    );
+
+
+    // recipeBasaltBrick
+    
+    // Recipe inputs
+    bytes32[] memory inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = BasaltObjectID;
+    inputObjectTypeIds[1] = PaperObjectID;
+    uint8[] memory inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4;
+    inputObjectTypeAmounts[1] = 4;
+
+    // Recipe outputs
+    bytes32[] memory outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = BasaltBrickObjectID;
+    uint8[] memory outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4;
+
+    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
+    ObjectProperties memory outputProperties;
+    outputProperties.mass = BASALT_BRICK_MASS;
+    outputObjectProperties[0] = outputProperties;
+
+    bytes32 newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+    
+
+    // recipeBasaltCarved
+    
+    // Recipe inputs
+    bytes32[] memory inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = BasaltBrickObjectID;
+    inputObjectTypeIds[1] = PaperObjectID;
+    uint8[] memory inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4;
+    inputObjectTypeAmounts[1] = 4;
+
+    // Recipe outputs
+    bytes32[] memory outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = BasaltCarvedObjectID;
+    uint8[] memory outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4;
+
+    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
+    ObjectProperties memory outputProperties;
+    outputProperties.mass = BASALT_CARVED_MASS;
+    outputObjectProperties[0] = outputProperties;
+
+    bytes32 newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+    // recipeBasaltPolished
+    
+    // Identical structure to recipeBasaltCarved, with adjusted output type
+    // Recipe inputs
+    bytes32[] memory inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = BasaltBrickObjectID;
+    inputObjectTypeIds[1] = PaperObjectID;
+    uint8[] memory inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4;
+    inputObjectTypeAmounts[1] = 4;
+
+    // Recipe outputs
+    bytes32[] memory outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = BasaltPolishedObjectID;
+    uint8[] memory outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4;
+
+    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
+    ObjectProperties memory outputProperties;
+    outputProperties.mass = BASALT_POLISHED_MASS;
+    outputObjectProperties[0] = outputProperties;
+
+    bytes32 newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+    
+
+    // recipeBasaltShingles
+    // Identical structure to recipeBasaltCarved, with adjusted output type
+    // Recipe inputs
+    bytes32[] memory inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = BasaltBrickObjectID;
+    inputObjectTypeIds[1] = PaperObjectID;
+    uint8[] memory inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4;
+    inputObjectTypeAmounts[1] = 4;
+
+    // Recipe outputs
+    bytes32[] memory outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = BasaltShinglesObjectID;
+    uint8[] memory outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4;
+
+    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
+    ObjectProperties memory outputProperties;
+    outputProperties.mass = BASALT_SHINGLES_MASS;
+    outputObjectProperties[0] = outputProperties;
+
+    bytes32 newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
     );
   }
 }

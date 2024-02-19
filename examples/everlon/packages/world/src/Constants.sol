@@ -10,12 +10,18 @@ uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
 uint256 constant NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN = 25;
 int32 constant NUM_MAX_AGENT_ACTION_RADIUS = 5;
 
+
 uint8 constant NUM_BLOCK_STACKABLE = 99;
 
 bytes32 constant AirObjectID = bytes32(keccak256("air"));
 bytes32 constant SnowObjectID = bytes32(keccak256("snow"));
 bytes32 constant AsphaltObjectID = bytes32(keccak256("asphalt"));
 bytes32 constant BasaltObjectID = bytes32(keccak256("basalt"));
+bytes32 constant PaperObjectID = bytes32(keccak256("paper"));
+bytes32 constant BasaltBrickObjectID = bytes32(keccak256("basalt-brick"));
+bytes32 constant BasaltCarvedObjectID = bytes32(keccak256("basalt-carved"));
+bytes32 constant BasaltPolishedObjectID = bytes32(keccak256("basalt-polished"));
+bytes32 constant BasaltShinglesObjectID = bytes32(keccak256("basalt-shingles"));
 bytes32 constant ClayBrickObjectID = bytes32(keccak256("clay-brick"));
 bytes32 constant CottonObjectID = bytes32(keccak256("cotton"));
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
@@ -104,14 +110,21 @@ uint256 constant BIRCH_LOG_MASS = 4;
 uint256 constant SAKURA_LOG_MASS = 4;
 uint256 constant RUBBER_LOG_MASS = 4;
 
-uint256 constant OAK_LUMBER_MASS = 4;
+uint256 constant OAK_LUMBER_MASS = 1;
 
 uint256 constant OAK_LEAF_MASS = 1;
 uint256 constant BIRCH_LEAF_MASS = 1;
 uint256 constant SAKURA_LEAF_MASS = 1;
 uint256 constant RUBBER_LEAF_MASS = 1;
 
-uint256 constant WOODEN_PICK_MASS = 2;
+uint256 constant WOODEN_PICK_MASS = 16;
+uint256 constant PAPER_MASS = 1;
+uint256 constant BASALT_BRICK_MASS = 10;
+uint256 constant BASALT_CARVED_MASS = 11;
+uint256 constant BASALT_POLISHED_MASS = 11;
+uint256 constant BASALT_SHINGLES_MASS = 11;
+
+
 
 // Terrain
 enum Biome {

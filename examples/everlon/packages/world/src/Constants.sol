@@ -28,6 +28,7 @@ bytes32 constant ClayCarvedObjectID = bytes32(keccak256("clay-carved"));
 bytes32 constant ClayPolishedObjectID = bytes32(keccak256("clay-polished"));
 bytes32 constant ClayShinglesObjectID = bytes32(keccak256("clay-shingles"));
 bytes32 constant CottonObjectID = bytes32(keccak256("cotton"));
+bytes32 constant CottonBlockObjectID = bytes32(keccak256("cotton-block"));
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
 bytes32 constant EmberstoneObjectID = bytes32(keccak256("emberstone"));
 bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
@@ -42,6 +43,7 @@ bytes32 constant ClayObjectID = bytes32(keccak256("clay"));
 bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
 bytes32 constant LavaObjectID = bytes32(keccak256("lava"));
 bytes32 constant DiamondOreObjectID = bytes32(keccak256("diamond-ore"));
+bytes32 constant DiamondObjectID = bytes32(keccak256("diamond"));
 bytes32 constant GoldOreObjectID = bytes32(keccak256("gold-ore"));
 bytes32 constant CoalOreObjectID = bytes32(keccak256("coal-ore"));
 bytes32 constant SilverOreObjectID = bytes32(keccak256("silver-ore"));
@@ -69,6 +71,7 @@ bytes32 constant BirchLeafObjectID = bytes32(keccak256("birch-leaf"));
 bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
 bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
 bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
+bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
 
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
 
@@ -98,6 +101,8 @@ uint256 constant COAL_ORE_MASS = 7;
 uint256 constant SILVER_ORE_MASS = 9;
 uint256 constant GOLD_ORE_MASS = 10;
 uint256 constant DIAMOND_ORE_MASS = 15;
+uint256 constant DIAMOND_MASS = 60;
+
 uint256 constant NEPTUNIUM_ORE_MASS = 20;
 
 uint256 constant SNOW_MASS = 1;
@@ -148,6 +153,8 @@ uint256 constant CLAY_CARVED_MASS = 16;
 uint256 constant CLAY_POLISHED_MASS = 16;
 uint256 constant CLAY_SHINGLES_MASS = 16;
 
+uint256 constant COBBLESTONE_BRICK_MASS = 7;
+uint256 constant COTTON_BLOCK_MASS = 4;
 
 
 

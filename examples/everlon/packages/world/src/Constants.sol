@@ -54,6 +54,8 @@ bytes32 constant SwitchGrassObjectID = bytes32(keccak256("switch-grass"));
 bytes32 constant OakLogObjectID = bytes32(keccak256("oak-log"));
 bytes32 constant OakLumberObjectID = bytes32(keccak256("oak-lumber"));
 bytes32 constant BirchLogObjectID = bytes32(keccak256("birch-log"));
+bytes32 constant BirchLumberObjectID = bytes32(keccak256("birch-lumber"));
+bytes32 constant ReinforcedBirchLumberObjectID = bytes32(keccak256("reinforced-birch-lumber"));
 bytes32 constant SakuraLogObjectID = bytes32(keccak256("sakura-log"));
 bytes32 constant RubberLogObjectID = bytes32(keccak256("rubber-log"));
 bytes32 constant OakLeafObjectID = bytes32(keccak256("oak-leaf"));
@@ -114,6 +116,7 @@ uint256 constant SAKURA_LOG_MASS = 4;
 uint256 constant RUBBER_LOG_MASS = 4;
 
 uint256 constant OAK_LUMBER_MASS = 1;
+uint256 constant BIRCH_LUMBER_MASS = 1;
 
 uint256 constant OAK_LEAF_MASS = 1;
 uint256 constant BIRCH_LEAF_MASS = 1;
@@ -128,6 +131,11 @@ uint256 constant BASALT_BRICK_MASS = 10;
 uint256 constant BASALT_CARVED_MASS = 11;
 uint256 constant BASALT_POLISHED_MASS = 11;
 uint256 constant BASALT_SHINGLES_MASS = 11;
+
+uint256 constant REINFORCED_BIRCH_LUMBER_MASS = 6;
+
+
+
 
 // Terrain
 enum Biome {

@@ -14,7 +14,7 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID } from "@tenet-world/src/Constants.sol";
+import { BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
@@ -210,6 +210,105 @@ contract RecipeSystem is System {
             outputObjectProperties: abi.encode(outputObjectProperties)
         })
     );
+
+
+    // recipePaper0
+
+    inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = OakLogObjectID;
+    inputObjectTypeAmounts = new uint8[](1);
+    inputObjectTypeAmounts[0] = 1;
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = PaperObjectID;
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4;
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = PAPER_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+
+    // recipeBirchLumber
+
+    inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = BirchLogObjectID;
+    inputObjectTypeAmounts = new uint8[](1);
+    inputObjectTypeAmounts[0] = 1;
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = BirchLumberObjectID; 
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4;
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = BIRCH_LUMBER_MASS; 
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+    // recipeBirchReinforced
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = BirchLumberObjectID; // Adjust if there's a specific ID
+    inputObjectTypeIds[1] = SilverOreObjectID;
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4;
+    inputObjectTypeAmounts[1] = 1;
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ReinforcedBirchLumberObjectID; // Define this ID if not already defined
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4;
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = REINFORCED_BIRCH_LUMBER_MASS; // Define this mass if not already defined
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+
+
+
+
 
     
   }

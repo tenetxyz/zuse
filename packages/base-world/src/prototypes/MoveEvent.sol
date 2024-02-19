@@ -127,6 +127,7 @@ abstract contract MoveEvent is Event {
       if (hasOwner) {
         for (uint256 i = 0; i < inventoryIds.length; i++) {
           bytes32 inventoryId = inventoryIds[i][0];
+          require(!IWorld(_world()).isInventoryFull(oldObjectEntityId), "InventorySystem: inventory is full");
           Inventory.set(inventoryId, oldObjectEntityId);
         }
       } else {

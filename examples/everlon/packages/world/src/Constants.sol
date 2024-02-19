@@ -10,8 +10,9 @@ uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
 uint256 constant NUM_MAX_SAME_OBJECT_EVENT_HANDLERS_RUN = 25;
 int32 constant NUM_MAX_AGENT_ACTION_RADIUS = 5;
 
-
 uint8 constant NUM_BLOCK_STACKABLE = 99;
+
+uint256 constant MAX_CHEST_SLOTS = 12;
 
 bytes32 constant AirObjectID = bytes32(keccak256("air"));
 bytes32 constant SnowObjectID = bytes32(keccak256("snow"));
@@ -59,6 +60,8 @@ bytes32 constant OakLeafObjectID = bytes32(keccak256("oak-leaf"));
 bytes32 constant BirchLeafObjectID = bytes32(keccak256("birch-leaf"));
 bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
 bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
+bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
+
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
 
 // Agents
@@ -117,13 +120,14 @@ uint256 constant BIRCH_LEAF_MASS = 1;
 uint256 constant SAKURA_LEAF_MASS = 1;
 uint256 constant RUBBER_LEAF_MASS = 1;
 
+uint256 constant CHEST_MASS = 10;
+
 uint256 constant WOODEN_PICK_MASS = 16;
 uint256 constant PAPER_MASS = 1;
 uint256 constant BASALT_BRICK_MASS = 10;
 uint256 constant BASALT_CARVED_MASS = 11;
 uint256 constant BASALT_POLISHED_MASS = 11;
 uint256 constant BASALT_SHINGLES_MASS = 11;
-
 
 // Terrain
 enum Biome {

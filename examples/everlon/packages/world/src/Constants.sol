@@ -128,7 +128,7 @@ uint256 constant BIRCH_LEAF_MASS = 1;
 uint256 constant SAKURA_LEAF_MASS = 1;
 uint256 constant RUBBER_LEAF_MASS = 1;
 
-uint256 constant CHEST_MASS = 10;
+uint256 constant CHEST_MASS = 24;
 
 uint256 constant WOODEN_PICK_MASS = 16;
 uint256 constant PAPER_MASS = 1;

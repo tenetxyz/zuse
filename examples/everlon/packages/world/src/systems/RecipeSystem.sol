@@ -78,6 +78,8 @@ contract RecipeSystem is System {
       })
     );
 
+
+    // 24 Oak Lumber -> 1 Chest
     inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = OakLumberObjectID;
     inputObjectTypeAmounts = new uint8[](1);

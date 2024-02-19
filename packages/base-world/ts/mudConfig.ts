@@ -220,8 +220,8 @@ const WORLD_SYSTEMS = {
     openAccess: true,
     registerAsRoot: true,
   },
-  EquipSystem: {
-    name: "EquipSystem",
+  InventorySystem: {
+    name: "InventorySystem",
     openAccess: true,
     registerAsRoot: true,
   },
@@ -230,10 +230,10 @@ const WORLD_SYSTEMS = {
     openAccess: true,
     registerAsRoot: true,
   },
-  InventorySystem: {
-    name: "InventorySystem",
+  InternalInventorySystem: {
+    name: "InternalInventor",
     openAccess: false,
-    accessList: ["BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem", "CraftSystem"],
+    accessList: ["InventorySystem", "BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem", "CraftSystem"],
     registerAsRoot: true,
   },
   EventApprovalsSystem: {

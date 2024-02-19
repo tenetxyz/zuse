@@ -44,7 +44,7 @@ contract RecipeSystem is System {
     outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 4;
     outputOutputProperties.mass = OAK_LUMBER_MASS;
-    outputObjectProperties[0] = outputOutputProperties;
+    outputObjectProperties[0] = outputObjectProperties; 
 
     bytes32 newRecipeId = getUniqueEntity();
     Recipes.set(
@@ -72,8 +72,8 @@ contract RecipeSystem is System {
     outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 1;
     outputObjectProperties = new ObjectProperties[](1);
-    outputOutputProperties.mass = WOODEN_PICK_MASS;
-    outputObjectProperties[0] = outputOutputProperties;
+    outputObjectProperties.mass = WOODEN_PICK_MASS; O
+    outputObjectProperties[0] = outputObjectProperties;
 
     newRecipeId = getUniqueEntity();
     Recipes.set(

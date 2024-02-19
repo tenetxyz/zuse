@@ -14,7 +14,7 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
+import { ClayShinglesObjectID, CLAY_SHINGLES_MASS, CLAY_POLISHED_MASS, ClayPolishedObjectID, CLAY_CARVED_MASS, ClayCarvedObjectID, CLAY_BRICK_MASS, ClayBrickObjectID, DirtObjectID, ClayObjectID, CLAY_MASS, MuckshroomObjectID, BellflowerObjectID, BlueMushroomSporeObjectID, BLUE_MUSHROOM_SPORE_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
@@ -179,7 +179,6 @@ contract RecipeSystem is System {
         })
     );
     
-
     // recipeBasaltShingles
 
     inputObjectTypeIds = new bytes32[](2);
@@ -303,6 +302,204 @@ contract RecipeSystem is System {
             outputObjectProperties: abi.encode(outputObjectProperties)
         })
     );
+
+
+    // recipeBlueMushroomSpores
+
+    // Recipe inputs
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = MuckshroomObjectID; // TODO: Define MuckshroomObjectID
+    inputObjectTypeIds[1] = BellflowerObjectID; // TODO: Define BellflowerObjectID
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 3; // 3 Muckshroom
+    inputObjectTypeAmounts[1] = 2; // 2 Bellflower
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = BlueMushroomSporeObjectID; // TODO: Define BlueMushroomSporeObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Blue Mushroom Spore
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = BLUE_MUSHROOM_SPORE_MASS; // TODO: Define BLUE_MUSHROOM_SPORE_MASS and assign here
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+    // recipeClay
+
+    // Recipe inputs
+    inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = DirtObjectID; // This is defined earlier, no TODO needed here
+    inputObjectTypeAmounts = new uint8[](1);
+    inputObjectTypeAmounts[0] = 4; // 4 Dirt
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ClayObjectID; // This is defined earlier, no TODO needed here
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Clay
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = CLAY_MASS; // This is defined earlier, no TODO needed here
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+    // recipeClayBrick
+
+    // Recipe inputs
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = ClayObjectID; // Defined earlier
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Clay
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    // Recipe outputs
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ClayBrickObjectID; // Defined earlier
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Clay Brick
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = CLAY_BRICK_MASS; // Defined earlier
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeClayCarved
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = ClayBrickObjectID; // Defined earlier
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Clay Brick
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ClayCarvedObjectID; // TODO: Define ClayCarvedObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Clay Carved
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = CLAY_CARVED_MASS; // TODO: Define CLAY_CARVED_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+    // recipeClayPolished
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = ClayBrickObjectID; // Defined earlier
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Clay Brick
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ClayPolishedObjectID; // TODO: Define ClayPolishedObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Clay Polished
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = CLAY_POLISHED_MASS; // TODO: Define CLAY_POLISHED_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+    // recipeClayShingles
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = ClayBrickObjectID; // Defined earlier
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Clay Brick
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ClayShinglesObjectID; // TODO: Define ClayShinglesObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Clay Shingles
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = CLAY_SHINGLES_MASS; // TODO: Define CLAY_SHINGLES_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+
+    
+
+
+
+
 
 
 

@@ -24,6 +24,9 @@ bytes32 constant BasaltCarvedObjectID = bytes32(keccak256("basalt-carved"));
 bytes32 constant BasaltPolishedObjectID = bytes32(keccak256("basalt-polished"));
 bytes32 constant BasaltShinglesObjectID = bytes32(keccak256("basalt-shingles"));
 bytes32 constant ClayBrickObjectID = bytes32(keccak256("clay-brick"));
+bytes32 constant ClayCarvedObjectID = bytes32(keccak256("clay-carved"));
+bytes32 constant ClayPolishedObjectID = bytes32(keccak256("clay-polished"));
+bytes32 constant ClayShinglesObjectID = bytes32(keccak256("clay-shingles"));
 bytes32 constant CottonObjectID = bytes32(keccak256("cotton"));
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
 bytes32 constant EmberstoneObjectID = bytes32(keccak256("emberstone"));
@@ -45,6 +48,9 @@ bytes32 constant SilverOreObjectID = bytes32(keccak256("silver-ore"));
 bytes32 constant NeptuniumOreObjectID = bytes32(keccak256("neptunium-ore"));
 bytes32 constant GrassObjectID = bytes32(keccak256("grass"));
 bytes32 constant MuckGrassObjectID = bytes32(keccak256("muck-grass"));
+bytes32 constant MuckshroomObjectID = bytes32(keccak256("muckshroom"));
+bytes32 constant BellflowerObjectID = bytes32(keccak256("bellflower"));
+bytes32 constant BlueMushroomSporeObjectID = bytes32(keccak256("blue-mushroom-spore"));
 bytes32 constant DirtObjectID = bytes32(keccak256("dirt"));
 bytes32 constant MuckDirtObjectID = bytes32(keccak256("muck-dirt"));
 bytes32 constant MossObjectID = bytes32(keccak256("moss"));
@@ -76,7 +82,7 @@ uint256 constant PLAYER_MASS = 10;
 uint256 constant AIR_MASS = 0;
 uint256 constant SOIL_MASS = 3;
 uint256 constant GRAVEL_MASS = 5;
-uint256 constant CLAY_MASS = 6;
+uint256 constant CLAY_MASS = 16;
 uint256 constant LAVA_MASS = 2;
 uint256 constant BEDROCK_MASS = 1000;
 uint256 constant MOSS_GRASS_MASS = 1;
@@ -97,7 +103,6 @@ uint256 constant NEPTUNIUM_ORE_MASS = 20;
 uint256 constant SNOW_MASS = 1;
 uint256 constant ASPHALT_MASS = 8;
 uint256 constant BASALT_MASS = 9;
-uint256 constant CLAY_BRICK_MASS = 8;
 uint256 constant COTTON_MASS = 1;
 
 uint256 constant STONE_MASS = 7;
@@ -133,6 +138,15 @@ uint256 constant BASALT_POLISHED_MASS = 11;
 uint256 constant BASALT_SHINGLES_MASS = 11;
 
 uint256 constant REINFORCED_BIRCH_LUMBER_MASS = 6;
+
+uint256 constant MUCKSHROOM_MASS = 1;
+uint256 constant BELLFLOWER_MASS = 1;
+uint256 constant BLUE_MUSHROOM_SPORE_MASS = 5;
+
+uint256 constant CLAY_BRICK_MASS = 16;
+uint256 constant CLAY_CARVED_MASS = 16;
+uint256 constant CLAY_POLISHED_MASS = 16;
+uint256 constant CLAY_SHINGLES_MASS = 16;
 
 
 

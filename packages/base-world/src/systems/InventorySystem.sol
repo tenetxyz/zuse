@@ -52,9 +52,10 @@ abstract contract InventorySystem is System {
     bytes32 dstEntityId = getEntityAtCoord(IStore(_world()), dstCoord);
     if (dstEntityId == bytes32(0)) {
       IWorld(_world()).buildTerrain(bytes32(0), dstCoord);
+      dstEntityId = getEntityAtCoord(IStore(_world()), dstCoord);
     }
     bytes32 dstObjectEntityId = ObjectEntity.get(dstEntityId);
-    require(dstObjectEntityId != bytes32(0), "InventorySystem: invalid destination");
+    require(dstObjectEntityId != bytes32(0), "InventorySystem: destination has no object entity");
 
     require(isValidSource(srcObjectEntityId), "InventorySystem: invalid source");
     require(isValidDestination(dstObjectEntityId), "InventorySystem: invalid destination");
@@ -66,7 +67,7 @@ abstract contract InventorySystem is System {
     if (inventoryObjectData.numObjects == transferAmount) {
       require(!IWorld(_world()).isInventoryFull(dstObjectEntityId), "InventorySystem: destination inventory is full");
       // transfer all
-      Inventory.set(dstObjectEntityId, inventoryId);
+      Inventory.set(inventoryId, dstObjectEntityId);
     } else {
       revert("InventorySystem: partial transfer not yet implemented");
       // TODO: implement partial transfer but keep durability

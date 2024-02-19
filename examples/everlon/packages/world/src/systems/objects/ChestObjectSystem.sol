@@ -17,7 +17,7 @@ contract ChestObjectSystem is ObjectType {
       IWorld(world).world_ChestObjectSyste_exitWorld.selector,
       IWorld(world).world_ChestObjectSyste_eventHandler.selector,
       IWorld(world).world_ChestObjectSyste_neighbourEventHandler.selector,
-      NUM_BLOCK_STACKABLE,
+      1,
       0,
       "Chest"
     );

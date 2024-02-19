@@ -21,30 +21,23 @@ contract RecipeSystem is System {
   // TODO: Make this only callable once
   function initRecipes() public {
 
-    // Initialize variable declarations at the beginning
-    bytes32[] memory inputObjectTypeIds;
-    uint8[] memory inputObjectTypeAmounts;
-    bytes32[] memory outputObjectTypeIds;
-    uint8[] memory outputObjectTypeAmounts;
-    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
-    ObjectProperties memory outputProperties;
-    bytes32 newRecipeId;
-
-    // 1 oak log -> 4 oak lumber
+    // 1 Oak Log -> 4 Oak Lumber
 
     // Recipe inputs
-    inputObjectTypeIds = new bytes32[](1);
+    bytes32[] memory inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = OakLogObjectID;
-    inputObjectTypeAmounts = new uint8[](1);
+    uint8[] memory inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 1;
 
     // Recipe outputs
-    outputObjectTypeIds = new bytes32[](1);
+    bytes32[] memory outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = OakLumberObjectID;
-    outputObjectTypeAmounts = new uint8[](1);
+    uint8[] memory outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 4;
+    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
+    ObjectProperties memory outputOutputProperties;
     outputOutputProperties.mass = OAK_LUMBER_MASS;
-    outputObjectProperties[0] = outputObjectProperties; 
+    outputObjectProperties[0] = outputOutputProperties;
 
     bytes32 newRecipeId = getUniqueEntity();
     Recipes.set(
@@ -58,9 +51,8 @@ contract RecipeSystem is System {
       })
     );
 
-    // 4 oak log -> 1 wooden pick
+    // Oak Log 4 -> 1 Wooden Pick
 
-    // Recipe inputs
     inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = OakLogObjectID;
     inputObjectTypeAmounts = new uint8[](1);
@@ -72,8 +64,8 @@ contract RecipeSystem is System {
     outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 1;
     outputObjectProperties = new ObjectProperties[](1);
-    outputObjectProperties.mass = WOODEN_PICK_MASS; O
-    outputObjectProperties[0] = outputObjectProperties;
+    outputOutputProperties.mass = WOODEN_PICK_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
 
     newRecipeId = getUniqueEntity();
     Recipes.set(
@@ -86,6 +78,7 @@ contract RecipeSystem is System {
         outputObjectProperties: abi.encode(outputObjectProperties)
       })
     );
+
 
     // recipeBasaltBrick
     
@@ -104,10 +97,10 @@ contract RecipeSystem is System {
     outputObjectTypeAmounts[0] = 4;
 
     outputObjectProperties = new ObjectProperties[](1);
-    outputProperties.mass = BASALT_BRICK_MASS;
-    outputObjectProperties[0] = outputProperties;
+    outputOutputProperties.mass = BASALT_BRICK_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
 
-    bytes32 newRecipeId = getUniqueEntity();
+    newRecipeId = getUniqueEntity();
     Recipes.set(
         newRecipeId,
         RecipesData({
@@ -137,10 +130,10 @@ contract RecipeSystem is System {
     outputObjectTypeAmounts[0] = 4;
 
     outputObjectProperties = new ObjectProperties[](1);
-    outputProperties.mass = BASALT_CARVED_MASS;
-    outputObjectProperties[0] = outputProperties;
+    outputOutputProperties.mass = BASALT_CARVED_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
 
-    bytes32 newRecipeId = getUniqueEntity();
+    newRecipeId = getUniqueEntity();
     Recipes.set(
         newRecipeId,
         RecipesData({
@@ -171,10 +164,10 @@ contract RecipeSystem is System {
     outputObjectTypeAmounts[0] = 4;
 
     outputObjectProperties = new ObjectProperties[](1);
-    outputProperties.mass = BASALT_POLISHED_MASS;
-    outputObjectProperties[0] = outputProperties;
+    outputOutputProperties.mass = BASALT_POLISHED_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
 
-    bytes32 newRecipeId = getUniqueEntity();
+    newRecipeId = getUniqueEntity();
     Recipes.set(
         newRecipeId,
         RecipesData({
@@ -188,8 +181,7 @@ contract RecipeSystem is System {
     
 
     // recipeBasaltShingles
-    // Identical structure to recipeBasaltCarved, with adjusted output type
-    // Recipe inputs
+
     inputObjectTypeIds = new bytes32[](2);
     inputObjectTypeIds[0] = BasaltBrickObjectID;
     inputObjectTypeIds[1] = PaperObjectID;
@@ -203,12 +195,11 @@ contract RecipeSystem is System {
     outputObjectTypeAmounts = new uint8[](1);
     outputObjectTypeAmounts[0] = 4;
 
-    ObjectProperties[] memory outputObjectProperties = new ObjectProperties[](1);
-    ObjectProperties memory outputProperties;
-    outputProperties.mass = BASALT_SHINGLES_MASS;
-    outputObjectProperties[0] = outputProperties;
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = BASALT_SHINGLES_MASS;
+    outputObjectProperties[0] = outputOutputProperties;
 
-    bytes32 newRecipeId = getUniqueEntity();
+    newRecipeId = getUniqueEntity();
     Recipes.set(
         newRecipeId,
         RecipesData({
@@ -219,5 +210,7 @@ contract RecipeSystem is System {
             outputObjectProperties: abi.encode(outputObjectProperties)
         })
     );
+
+    
   }
 }

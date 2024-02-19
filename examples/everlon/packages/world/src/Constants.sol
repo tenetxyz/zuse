@@ -125,7 +125,6 @@ uint256 constant BASALT_POLISHED_MASS = 11;
 uint256 constant BASALT_SHINGLES_MASS = 11;
 
 
-
 // Terrain
 enum Biome {
   Mountains,

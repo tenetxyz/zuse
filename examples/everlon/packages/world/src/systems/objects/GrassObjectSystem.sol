@@ -19,6 +19,7 @@ contract GrassObjectSystem is ObjectType {
       IWorld(world).world_GrassObjectSyste_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Grass"
     );
   }

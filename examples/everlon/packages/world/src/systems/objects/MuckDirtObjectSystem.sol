@@ -19,6 +19,7 @@ contract MuckDirtObjectSystem is ObjectType {
       IWorld(world).world_MuckDirtObjectSy_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Muck Dirt"
     );
   }

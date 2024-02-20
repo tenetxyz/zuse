@@ -16,6 +16,7 @@ export default mudConfig({
         neighbourEventHandlerSelector: "bytes4",
         stackable: "uint8",
         maxUses: "uint16",
+        damage: "uint16",
         name: "string",
       },
     },

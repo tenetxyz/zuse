@@ -19,6 +19,7 @@ contract ClayBrickObjectSystem is ObjectType {
       IWorld(world).world_ClayBrickObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Clay Brick"
     );
   }

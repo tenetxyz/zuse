@@ -19,6 +19,7 @@ contract ChestObjectSystem is ObjectType {
       IWorld(world).world_ChestObjectSyste_neighbourEventHandler.selector,
       1,
       0,
+      0,
       "Chest"
     );
   }

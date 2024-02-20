@@ -19,6 +19,7 @@ contract StoneObjectSystem is ObjectType {
       IWorld(world).world_StoneObjectSyste_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Stone"
     );
   }

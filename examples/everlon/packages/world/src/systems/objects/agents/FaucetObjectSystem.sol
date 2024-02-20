@@ -32,6 +32,7 @@ contract FaucetObjectSystem is AgentType {
       IWorld(world).world_FaucetObjectSyst_neighbourEventHandler.selector,
       1,
       0,
+      0,
       "Faucet"
     );
   }

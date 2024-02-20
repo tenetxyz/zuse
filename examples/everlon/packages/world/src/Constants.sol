@@ -36,6 +36,10 @@ bytes32 constant MoonstoneObjectID = bytes32(keccak256("moonstone"));
 bytes32 constant GraniteObjectID = bytes32(keccak256("granite"));
 bytes32 constant QuartziteObjectID = bytes32(keccak256("quartzite"));
 bytes32 constant LimestoneObjectID = bytes32(keccak256("limestone"));
+bytes32 constant LimestoneBrickObjectID = bytes32(keccak256("limestone-brick"));
+bytes32 constant LimestoneCarvedObjectID = bytes32(keccak256("limestone-carved"));
+bytes32 constant LimestonePolishedObjectID = bytes32(keccak256("limestone-polished"));
+bytes32 constant LimestoneShinglesObjectID = bytes32(keccak256("limestone-shingles"));
 bytes32 constant SunstoneObjectID = bytes32(keccak256("sunstone"));
 bytes32 constant SoilObjectID = bytes32(keccak256("soil"));
 bytes32 constant SandObjectID = bytes32(keccak256("sand"));
@@ -84,7 +88,6 @@ bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
 bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
 bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
-
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
 bytes32 constant DiamondAxeObjectID = bytes32(keccak256("diamond-axe"));
 bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-axe"));
@@ -143,6 +146,10 @@ uint256 constant GRANITE_POLISHED_MASS = 11;
 uint256 constant GRANITE_SHINGLES_MASS = 11;
 
 uint256 constant LIMESTONE_MASS = 7;
+uint256 constant LIMESTONE_BRICK_MASS = 7;
+uint256 constant LIMESTONE_CARVED_MASS = 7;
+uint256 constant LIMESTONE_POLISHED_MASS = 7;
+uint256 constant LIMESTONE_SHINGLES_MASS = 7;
 
 uint256 constant EMBERSTONE_MASS = 14; 
 uint256 constant MOONSTONE_MASS = 15;

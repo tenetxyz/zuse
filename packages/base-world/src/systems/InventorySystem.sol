@@ -56,6 +56,7 @@ abstract contract InventorySystem is System {
     }
     bytes32 dstObjectEntityId = ObjectEntity.get(dstEntityId);
     require(dstObjectEntityId != bytes32(0), "InventorySystem: destination has no object entity");
+    require(dstObjectEntityId != srcObjectEntityId, "InventorySystem: cannot transfer to self");
 
     require(isValidSource(srcObjectEntityId), "InventorySystem: invalid source");
     require(isValidDestination(dstObjectEntityId), "InventorySystem: invalid destination");

@@ -51,7 +51,6 @@ bytes32 constant GoldBarObjectID = bytes32(keccak256("gold-bar"));
 bytes32 constant GoldCubeObjectID = bytes32(keccak256("gold-cube"));
 bytes32 constant GoldAxeObjectID = bytes32(keccak256("gold-axe"));
 bytes32 constant GoldPickObjectID = bytes32(keccak256("gold-pick"));
-
 bytes32 constant CoalOreObjectID = bytes32(keccak256("coal-ore"));
 bytes32 constant SilverOreObjectID = bytes32(keccak256("silver-ore"));
 bytes32 constant NeptuniumOreObjectID = bytes32(keccak256("neptunium-ore"));
@@ -68,6 +67,12 @@ bytes32 constant MossGrassObjectID = bytes32(keccak256("moss-grass"));
 bytes32 constant SwitchGrassObjectID = bytes32(keccak256("switch-grass"));
 bytes32 constant OakLogObjectID = bytes32(keccak256("oak-log"));
 bytes32 constant OakLumberObjectID = bytes32(keccak256("oak-lumber"));
+bytes32 constant SakuraLumberObjectID = bytes32(keccak256("sakura-lumber"));
+bytes32 constant RubberLumberObjectID = bytes32(keccak256("rubber-lumber"));
+bytes32 constant GraniteBrickObjectID = bytes32(keccak256("granite-brick"));
+bytes32 constant GraniteCarvedObjectID = bytes32(keccak256("granite-carved"));
+bytes32 constant GraniteShinglesObjectID = bytes32(keccak256("granite-shingles"));
+bytes32 constant GranitePolishedObjectID = bytes32(keccak256("granite-polished"));
 bytes32 constant BirchLogObjectID = bytes32(keccak256("birch-log"));
 bytes32 constant BirchLumberObjectID = bytes32(keccak256("birch-lumber"));
 bytes32 constant ReinforcedBirchLumberObjectID = bytes32(keccak256("reinforced-birch-lumber"));
@@ -132,6 +137,11 @@ uint256 constant GLASS_MASS = 11;
 uint256 constant STONE_MASS = 7;
 uint256 constant COBBLESTONE_MASS = 7;
 uint256 constant GRANITE_MASS = 11;
+uint256 constant GRANITE_BRICK_MASS = 11;
+uint256 constant GRANITE_CARVED_MASS = 11;
+uint256 constant GRANITE_POLISHED_MASS = 11;
+uint256 constant GRANITE_SHINGLES_MASS = 11;
+
 uint256 constant LIMESTONE_MASS = 7;
 
 uint256 constant EMBERSTONE_MASS = 14; 

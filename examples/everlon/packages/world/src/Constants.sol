@@ -47,6 +47,11 @@ bytes32 constant LavaObjectID = bytes32(keccak256("lava"));
 bytes32 constant DiamondOreObjectID = bytes32(keccak256("diamond-ore"));
 bytes32 constant DiamondObjectID = bytes32(keccak256("diamond"));
 bytes32 constant GoldOreObjectID = bytes32(keccak256("gold-ore"));
+bytes32 constant GoldBarObjectID = bytes32(keccak256("gold-bar"));
+bytes32 constant GoldCubeObjectID = bytes32(keccak256("gold-cube"));
+bytes32 constant GoldAxeObjectID = bytes32(keccak256("gold-axe"));
+bytes32 constant GoldPickObjectID = bytes32(keccak256("gold-pick"));
+
 bytes32 constant CoalOreObjectID = bytes32(keccak256("coal-ore"));
 bytes32 constant SilverOreObjectID = bytes32(keccak256("silver-ore"));
 bytes32 constant NeptuniumOreObjectID = bytes32(keccak256("neptunium-ore"));
@@ -106,6 +111,11 @@ uint256 constant DIRT_MASS = 4;
 uint256 constant COAL_ORE_MASS = 7;
 uint256 constant SILVER_ORE_MASS = 9;
 uint256 constant GOLD_ORE_MASS = 10;
+uint256 constant GOLD_BAR_MASS = 40;
+uint256 constant GOLD_CUBE_MASS = 320;
+uint256 constant GOLD_AXE_MASS = 176;
+uint256 constant GOLD_PICK_MASS = 176;
+
 uint256 constant DIAMOND_ORE_MASS = 15;
 uint256 constant DIAMOND_MASS = 60;
 uint256 constant DIAMOND_CUBE_MASS = 480; //60 * 8 = 480

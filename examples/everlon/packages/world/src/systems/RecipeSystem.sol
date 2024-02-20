@@ -14,7 +14,7 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { GlassObjectID, GLASS_MASS, SandObjectID, EMBERSTONE_MASS, EmberstoneObjectID, StoneObjectID, CoalOreObjectID, DIAMOND_PICK_MASS, DiamondPickObjectID, DIAMOND_CUBE_MASS, DiamondCubeObjectID, DIAMOND_AXE_MASS, DiamondAxeObjectID, DIAMOND_MASS, DiamondObjectID, DiamondOreObjectID, COTTON_BLOCK_MASS, CottonBlockObjectID, CottonObjectID, COBBLESTONE_BRICK_MASS, CobblestoneBrickObjectID, CobblestoneObjectID, ChestObjectID, CHEST_MASS, ClayShinglesObjectID, CLAY_SHINGLES_MASS, CLAY_POLISHED_MASS, ClayPolishedObjectID, CLAY_CARVED_MASS, ClayCarvedObjectID, CLAY_BRICK_MASS, ClayBrickObjectID, DirtObjectID, ClayObjectID, CLAY_MASS, MuckshroomObjectID, BellflowerObjectID, BlueMushroomSporeObjectID, BLUE_MUSHROOM_SPORE_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
+import { GoldPickObjectID, GOLD_PICK_MASS, GoldAxeObjectID, GOLD_AXE_MASS, GOLD_CUBE_MASS, GoldCubeObjectID, GOLD_BAR_MASS, GoldBarObjectID, GoldOreObjectID, GlassObjectID, GLASS_MASS, SandObjectID, EMBERSTONE_MASS, EmberstoneObjectID, StoneObjectID, CoalOreObjectID, DIAMOND_PICK_MASS, DiamondPickObjectID, DIAMOND_CUBE_MASS, DiamondCubeObjectID, DIAMOND_AXE_MASS, DiamondAxeObjectID, DIAMOND_MASS, DiamondObjectID, DiamondOreObjectID, COTTON_BLOCK_MASS, CottonBlockObjectID, CottonObjectID, COBBLESTONE_BRICK_MASS, CobblestoneBrickObjectID, CobblestoneObjectID, ChestObjectID, CHEST_MASS, ClayShinglesObjectID, CLAY_SHINGLES_MASS, CLAY_POLISHED_MASS, ClayPolishedObjectID, CLAY_CARVED_MASS, ClayCarvedObjectID, CLAY_BRICK_MASS, ClayBrickObjectID, DirtObjectID, ClayObjectID, CLAY_MASS, MuckshroomObjectID, BellflowerObjectID, BlueMushroomSporeObjectID, BLUE_MUSHROOM_SPORE_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
@@ -733,6 +733,123 @@ contract RecipeSystem is System {
 
     outputObjectProperties = new ObjectProperties[](1);
     outputOutputProperties.mass = GLASS_MASS; // TODO: Define GLASS_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeGoldBar
+
+    inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = GoldOreObjectID; // TODO: Define GoldNuggetObjectID if using a different ID for "gold nugget"
+    inputObjectTypeAmounts = new uint8[](1);
+    inputObjectTypeAmounts[0] = 4; // 4 Gold Nugget
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = GoldBarObjectID; // TODO: Define GoldBarObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Gold Bar
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = GOLD_BAR_MASS; // TODO: Define GOLD_BAR_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeGoldCube
+
+    inputObjectTypeIds = new bytes32[](1);
+    inputObjectTypeIds[0] = GoldBarObjectID;
+    inputObjectTypeAmounts = new uint8[](1);
+    inputObjectTypeAmounts[0] = 8; // 8 Gold Bar
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = GoldCubeObjectID; // TODO: Define GoldCubeObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Gold Cube
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = GOLD_CUBE_MASS; // TODO: Define GOLD_CUBE_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+    // recipeGoldAxe
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = GoldBarObjectID; // TODO: Define GoldBarObjectID
+    inputObjectTypeIds[1] = OakLogObjectID; // Assuming OakLogObjectID for "log", adjust if necessary
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Gold Bar
+    inputObjectTypeAmounts[1] = 4; // 4 Log
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = GoldAxeObjectID; // TODO: Define GoldAxeObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Axe
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = GOLD_AXE_MASS; // TODO: Define GOLD_AXE_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeGoldPick
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = GoldBarObjectID; // TODO: Define GoldBarObjectID
+    inputObjectTypeIds[1] = OakLogObjectID; // Assuming OakLogObjectID for "log", adjust if necessary
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Gold Bar
+    inputObjectTypeAmounts[1] = 4; // 4 Log
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = GoldPickObjectID; // TODO: Define GoldPickObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Pick
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = GOLD_PICK_MASS; // TODO: Define GOLD_PICK_MASS
     outputObjectProperties[0] = outputOutputProperties;
 
     newRecipeId = getUniqueEntity();

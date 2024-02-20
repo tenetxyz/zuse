@@ -14,7 +14,7 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { DIAMOND_PICK_MASS, DiamondPickObjectID, DIAMOND_CUBE_MASS, DiamondCubeObjectID, DIAMOND_AXE_MASS, DiamondAxeObjectID, DIAMOND_MASS, DiamondObjectID, DiamondOreObjectID, COTTON_BLOCK_MASS, CottonBlockObjectID, CottonObjectID, COBBLESTONE_BRICK_MASS, CobblestoneBrickObjectID, CobblestoneObjectID, ChestObjectID, CHEST_MASS, ClayShinglesObjectID, CLAY_SHINGLES_MASS, CLAY_POLISHED_MASS, ClayPolishedObjectID, CLAY_CARVED_MASS, ClayCarvedObjectID, CLAY_BRICK_MASS, ClayBrickObjectID, DirtObjectID, ClayObjectID, CLAY_MASS, MuckshroomObjectID, BellflowerObjectID, BlueMushroomSporeObjectID, BLUE_MUSHROOM_SPORE_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
+import { GlassObjectID, GLASS_MASS, SandObjectID, EMBERSTONE_MASS, EmberstoneObjectID, StoneObjectID, CoalOreObjectID, DIAMOND_PICK_MASS, DiamondPickObjectID, DIAMOND_CUBE_MASS, DiamondCubeObjectID, DIAMOND_AXE_MASS, DiamondAxeObjectID, DIAMOND_MASS, DiamondObjectID, DiamondOreObjectID, COTTON_BLOCK_MASS, CottonBlockObjectID, CottonObjectID, COBBLESTONE_BRICK_MASS, CobblestoneBrickObjectID, CobblestoneObjectID, ChestObjectID, CHEST_MASS, ClayShinglesObjectID, CLAY_SHINGLES_MASS, CLAY_POLISHED_MASS, ClayPolishedObjectID, CLAY_CARVED_MASS, ClayCarvedObjectID, CLAY_BRICK_MASS, ClayBrickObjectID, DirtObjectID, ClayObjectID, CLAY_MASS, MuckshroomObjectID, BellflowerObjectID, BlueMushroomSporeObjectID, BLUE_MUSHROOM_SPORE_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 contract RecipeSystem is System {
@@ -673,6 +673,66 @@ contract RecipeSystem is System {
 
     outputObjectProperties = new ObjectProperties[](1);
     outputOutputProperties.mass = DIAMOND_PICK_MASS; // TODO: Define DIAMOND_PICK_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeEmberstone
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = CoalOreObjectID; // Assuming CoalOreObjectID for "coal nuggets", adjust if necessary
+    inputObjectTypeIds[1] = StoneObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Coal Nuggets
+    inputObjectTypeAmounts[1] = 4; // 4 Stone
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = EmberstoneObjectID; // Defined earlier
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Emberstone
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = EMBERSTONE_MASS; // Defined earlier
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeGlass
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = SandObjectID; // TODO: Define SandObjectID
+    inputObjectTypeIds[1] = CoalOreObjectID; // Assuming CoalOreObjectID for "coal", adjust if necessary
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 2; // 2 Sand
+    inputObjectTypeAmounts[1] = 1; // 1 Coal
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = GlassObjectID; // TODO: Define GlassObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Glass
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = GLASS_MASS; // TODO: Define GLASS_MASS
     outputObjectProperties[0] = outputOutputProperties;
 
     newRecipeId = getUniqueEntity();

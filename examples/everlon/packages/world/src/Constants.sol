@@ -38,6 +38,8 @@ bytes32 constant QuartziteObjectID = bytes32(keccak256("quartzite"));
 bytes32 constant LimestoneObjectID = bytes32(keccak256("limestone"));
 bytes32 constant SunstoneObjectID = bytes32(keccak256("sunstone"));
 bytes32 constant SoilObjectID = bytes32(keccak256("soil"));
+bytes32 constant SandObjectID = bytes32(keccak256("sand"));
+bytes32 constant GlassObjectID = bytes32(keccak256("glass"));
 bytes32 constant GravelObjectID = bytes32(keccak256("gravel"));
 bytes32 constant ClayObjectID = bytes32(keccak256("clay"));
 bytes32 constant BedrockObjectID = bytes32(keccak256("bedrock"));
@@ -114,13 +116,15 @@ uint256 constant SNOW_MASS = 1;
 uint256 constant ASPHALT_MASS = 8;
 uint256 constant BASALT_MASS = 9;
 uint256 constant COTTON_MASS = 1;
+uint256 constant SAND_MASS = 2;
+uint256 constant GLASS_MASS = 11;
 
 uint256 constant STONE_MASS = 7;
 uint256 constant COBBLESTONE_MASS = 7;
 uint256 constant GRANITE_MASS = 11;
 uint256 constant LIMESTONE_MASS = 7;
 
-uint256 constant EMBERSTONE_MASS = 15;
+uint256 constant EMBERSTONE_MASS = 14; 
 uint256 constant MOONSTONE_MASS = 15;
 uint256 constant QUARTZITE_MASS = 10;
 uint256 constant SUNSTONE_MASS = 15;

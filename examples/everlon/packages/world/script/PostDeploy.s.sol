@@ -16,6 +16,7 @@ contract PostDeploy is Script {
 
     world.initRecipes();
     world.initRecipesTwo();
+    world.initRecipesThree();
 
     world.world_AirObjectSystem_registerObject();
 

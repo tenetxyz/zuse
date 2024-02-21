@@ -64,6 +64,11 @@ bytes32 constant NeptuniumAxeObjectID = bytes32(keccak256("neptunium-axe"));
 bytes32 constant NeptuniumPickObjectID = bytes32(keccak256("neptunium-pick"));
 bytes32 constant CoalOreObjectID = bytes32(keccak256("coal-ore"));
 bytes32 constant SilverOreObjectID = bytes32(keccak256("silver-ore"));
+bytes32 constant SilverBarObjectID = bytes32(keccak256("silver-ore"));
+bytes32 constant SilverCubeObjectID = bytes32(keccak256("silver-cube"));
+bytes32 constant SilverAxeObjectID = bytes32(keccak256("silver-axe"));
+bytes32 constant SilverPickObjectID = bytes32(keccak256("silver-pick"));
+bytes32 constant SilverWhackerObjectID = bytes32(keccak256("silver-whacker"));
 bytes32 constant NeptuniumOreObjectID = bytes32(keccak256("neptunium-ore"));
 bytes32 constant NeptuniumBarObjectID = bytes32(keccak256("neptunium-bar"));
 bytes32 constant NeptuniumCubeObjectID = bytes32(keccak256("neptunium-cube"));
@@ -133,6 +138,12 @@ uint256 constant DIRT_MASS = 4;
 
 uint256 constant COAL_ORE_MASS = 7;
 uint256 constant SILVER_ORE_MASS = 9;
+uint256 constant SILVER_BAR_MASS = 36; //9*4 = 36
+uint256 constant SILVER_CUBE_MASS = 288; //36*8 = 288
+uint256 constant SILVER_AXE_MASS = 160; //36*4 + 4*4 = 160
+uint256 constant SILVER_PICK_MASS = 160; //36*4 + 4*4 = 160
+uint256 constant SILVER_WHACKER_MASS = 216; //36*6 = 216
+
 uint256 constant GOLD_ORE_MASS = 10;
 uint256 constant GOLD_BAR_MASS = 40;
 uint256 constant GOLD_CUBE_MASS = 320;

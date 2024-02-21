@@ -30,6 +30,7 @@ bytes32 constant ClayShinglesObjectID = bytes32(keccak256("clay-shingles"));
 bytes32 constant CottonObjectID = bytes32(keccak256("cotton"));
 bytes32 constant CottonBlockObjectID = bytes32(keccak256("cotton-block"));
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
+bytes32 constant RubbleObjectID = bytes32(keccak256("rubble"));
 bytes32 constant EmberstoneObjectID = bytes32(keccak256("emberstone"));
 bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
 bytes32 constant MoonstoneObjectID = bytes32(keccak256("moonstone"));
@@ -70,6 +71,7 @@ bytes32 constant GrassObjectID = bytes32(keccak256("grass"));
 bytes32 constant MuckGrassObjectID = bytes32(keccak256("muck-grass"));
 bytes32 constant MuckshroomObjectID = bytes32(keccak256("muckshroom"));
 bytes32 constant RedMushroomObjectID = bytes32(keccak256("red-mushroom"));
+bytes32 constant RedMushroomSporesObjectID = bytes32(keccak256("red-mushroom-spores"));
 bytes32 constant MushroomLeatherBlockObjectID = bytes32(keccak256("mushroom-leather"));
 bytes32 constant BellflowerObjectID = bytes32(keccak256("bellflower"));
 bytes32 constant BlueMushroomSporeObjectID = bytes32(keccak256("blue-mushroom-spore"));
@@ -84,7 +86,9 @@ bytes32 constant OakLumberObjectID = bytes32(keccak256("oak-lumber"));
 bytes32 constant MuckshroomSporesObjectID = bytes32(keccak256("muckshroom-spores"));
 bytes32 constant ReinforcedOakLumberObjectID = bytes32(keccak256("reinforced-oak-lumber"));
 bytes32 constant SakuraLumberObjectID = bytes32(keccak256("sakura-lumber"));
+bytes32 constant RubberLogObjectID = bytes32(keccak256("rubber-log"));
 bytes32 constant RubberLumberObjectID = bytes32(keccak256("rubber-lumber"));
+bytes32 constant ReinforcedRubberLumberObjectID = bytes32(keccak256("reinforced-rubber-lumber"));
 bytes32 constant GraniteBrickObjectID = bytes32(keccak256("granite-brick"));
 bytes32 constant GraniteCarvedObjectID = bytes32(keccak256("granite-carved"));
 bytes32 constant GraniteShinglesObjectID = bytes32(keccak256("granite-shingles"));
@@ -93,7 +97,6 @@ bytes32 constant BirchLogObjectID = bytes32(keccak256("birch-log"));
 bytes32 constant BirchLumberObjectID = bytes32(keccak256("birch-lumber"));
 bytes32 constant ReinforcedBirchLumberObjectID = bytes32(keccak256("reinforced-birch-lumber"));
 bytes32 constant SakuraLogObjectID = bytes32(keccak256("sakura-log"));
-bytes32 constant RubberLogObjectID = bytes32(keccak256("rubber-log"));
 bytes32 constant OakLeafObjectID = bytes32(keccak256("oak-leaf"));
 bytes32 constant BirchLeafObjectID = bytes32(keccak256("birch-leaf"));
 bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
@@ -152,6 +155,7 @@ uint256 constant SAND_MASS = 2;
 uint256 constant GLASS_MASS = 11;
 
 uint256 constant STONE_MASS = 7;
+uint256 constant RUBBLE_MASS = 2;
 uint256 constant COBBLESTONE_MASS = 7;
 uint256 constant GRANITE_MASS = 11;
 uint256 constant GRANITE_BRICK_MASS = 11;
@@ -179,10 +183,15 @@ uint256 constant MOONSTONE_MASS = 17;
 uint256 constant OAK_LOG_MASS = 4;
 uint256 constant BIRCH_LOG_MASS = 4;
 uint256 constant SAKURA_LOG_MASS = 4;
+uint256 constant SAKURA_LUMBER_MASS = 1;
+
 uint256 constant RUBBER_LOG_MASS = 4;
 
+uint256 constant RUBBER_LUMBER_MASS = 1;
+uint256 constant REINFORCED_RUBBER_LUMBER_MASS = 3;
+
 uint256 constant OAK_LUMBER_MASS = 1;
-uint256 constant REINFORCED_OAK_LUMBER_MASS = 13;
+uint256 constant REINFORCED_OAK_LUMBER_MASS = 3;
 
 uint256 constant BIRCH_LUMBER_MASS = 1;
 
@@ -207,7 +216,7 @@ uint256 constant BASALT_CARVED_MASS = 11;
 uint256 constant BASALT_POLISHED_MASS = 11;
 uint256 constant BASALT_SHINGLES_MASS = 11;
 
-uint256 constant REINFORCED_BIRCH_LUMBER_MASS = 6;
+uint256 constant REINFORCED_BIRCH_LUMBER_MASS = 3;
 
 uint256 constant MUCKSHROOM_MASS = 1;
 uint256 constant MUCKSHROOM_SPORES_MASS = 6;
@@ -216,6 +225,8 @@ uint256 constant BELLFLOWER_MASS = 1;
 uint256 constant BLUE_MUSHROOM_SPORE_MASS = 5;
 
 uint256 constant RED_MUSHROOM = 2;
+uint256 constant RED_MUSHROOM_SPORES_MASS = 1; 
+
 uint256 constant MUSHROOM_LEATHER_BLOCK_MASS = 8;
 
 uint256 constant CLAY_BRICK_MASS = 16;

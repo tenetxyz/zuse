@@ -71,8 +71,11 @@ abstract contract BuildEvent is Event {
     } else {
       require(ObjectType.get(eventEntityId) == emptyObjectId(), "BuildEvent: Object type id is not empty");
     }
-    bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
-    require(inventoryIds.length == 0, "BuildEvent: Cannot build where there are dropped items");
+    address caller = _msgSender();
+    if (caller != _world() && caller != getSimulatorAddress()) {
+      bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
+      require(inventoryIds.length == 0, "BuildEvent: Cannot build where there are dropped items");
+    }
 
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     if (isNewEntity) {
@@ -82,7 +85,6 @@ abstract contract BuildEvent is Event {
 
     ObjectType.set(eventEntityId, objectTypeId);
 
-    address caller = _msgSender();
     if (caller != _world() && caller != getSimulatorAddress()) {
       bytes32 inventoryId = getInventoryId(eventData);
       IWorld(_world()).removeObjectFromInventory(inventoryId, 1);

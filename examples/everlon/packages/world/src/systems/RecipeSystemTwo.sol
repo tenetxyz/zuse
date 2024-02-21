@@ -14,7 +14,7 @@ import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/table
 import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
 
 import { initializeBytes32Array } from "@tenet-utils/src/ArrayUtils.sol";
-import { NeptuniumPickObjectID, MOONSTONE_MASS, NeptuniumAxeObjectID, NEPTUNIUM_AXE_MASS, NEPTUNIUM_PICK_MASS, NeptuniumCubeObjectID, NEPTUNIUM_CUBE_MASS, NeptuniumOreObjectID, NEPTUNIUM_BAR_MASS, NeptuniumBarObjectID, RedMushroomObjectID, MushroomLeatherBlockObjectID, MUSHROOM_LEATHER_BLOCK_MASS, MoonstoneObjectID, QuartziteObjectID, LIMESTONE_CARVED_MASS, LIMESTONE_SHINGLES_MASS, LIMESTONE_POLISHED_MASS, LimestoneShinglesObjectID, LimestonePolishedObjectID, LimestoneCarvedObjectID, LimestoneObjectID, LimestoneBrickObjectID, LIMESTONE_BRICK_MASS, GRANITE_SHINGLES_MASS, GraniteShinglesObjectID, GranitePolishedObjectID, GRANITE_POLISHED_MASS, GRANITE_CARVED_MASS, GraniteCarvedObjectID, GRANITE_BRICK_MASS, GraniteBrickObjectID, GraniteObjectID, SakuraLumberObjectID, RubberLumberObjectID, GoldPickObjectID, GOLD_PICK_MASS, GoldAxeObjectID, GOLD_AXE_MASS, GOLD_CUBE_MASS, GoldCubeObjectID, GOLD_BAR_MASS, GoldBarObjectID, GoldOreObjectID, GlassObjectID, GLASS_MASS, SandObjectID, EMBERSTONE_MASS, EmberstoneObjectID, StoneObjectID, CoalOreObjectID, DIAMOND_PICK_MASS, DiamondPickObjectID, DIAMOND_CUBE_MASS, DiamondCubeObjectID, DIAMOND_AXE_MASS, DiamondAxeObjectID, DIAMOND_MASS, DiamondObjectID, DiamondOreObjectID, COTTON_BLOCK_MASS, CottonBlockObjectID, CottonObjectID, COBBLESTONE_BRICK_MASS, CobblestoneBrickObjectID, CobblestoneObjectID, ChestObjectID, CHEST_MASS, ClayShinglesObjectID, CLAY_SHINGLES_MASS, CLAY_POLISHED_MASS, ClayPolishedObjectID, CLAY_CARVED_MASS, ClayCarvedObjectID, CLAY_BRICK_MASS, ClayBrickObjectID, DirtObjectID, ClayObjectID, CLAY_MASS, MuckshroomObjectID, BellflowerObjectID, BlueMushroomSporeObjectID, BLUE_MUSHROOM_SPORE_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
+import { QuartziteShinglesObjectID, QUARTZITE_SHINGLES_MASS, QuartzitePolishedObjectID, QUARTZITE_POLISHED_MASS, QuartziteCarvedObjectID, QUARTZITE_CARVED_MASS, QuartziteBrickObjectID, QUARTZITE_BRICK_MASS, MuckshroomSporesObjectID, MUCKSHROOM_SPORES_MASS, ReinforcedOakLumberObjectID, REINFORCED_OAK_LUMBER_MASS, NeptuniumPickObjectID, MOONSTONE_MASS, NeptuniumAxeObjectID, NEPTUNIUM_AXE_MASS, NEPTUNIUM_PICK_MASS, NeptuniumCubeObjectID, NEPTUNIUM_CUBE_MASS, NeptuniumOreObjectID, NEPTUNIUM_BAR_MASS, NeptuniumBarObjectID, RedMushroomObjectID, MushroomLeatherBlockObjectID, MUSHROOM_LEATHER_BLOCK_MASS, MoonstoneObjectID, QuartziteObjectID, LIMESTONE_CARVED_MASS, LIMESTONE_SHINGLES_MASS, LIMESTONE_POLISHED_MASS, LimestoneShinglesObjectID, LimestonePolishedObjectID, LimestoneCarvedObjectID, LimestoneObjectID, LimestoneBrickObjectID, LIMESTONE_BRICK_MASS, GRANITE_SHINGLES_MASS, GraniteShinglesObjectID, GranitePolishedObjectID, GRANITE_POLISHED_MASS, GRANITE_CARVED_MASS, GraniteCarvedObjectID, GRANITE_BRICK_MASS, GraniteBrickObjectID, GraniteObjectID, SakuraLumberObjectID, RubberLumberObjectID, GoldPickObjectID, GOLD_PICK_MASS, GoldAxeObjectID, GOLD_AXE_MASS, GOLD_CUBE_MASS, GoldCubeObjectID, GOLD_BAR_MASS, GoldBarObjectID, GoldOreObjectID, GlassObjectID, GLASS_MASS, SandObjectID, EMBERSTONE_MASS, EmberstoneObjectID, StoneObjectID, CoalOreObjectID, DIAMOND_PICK_MASS, DiamondPickObjectID, DIAMOND_CUBE_MASS, DiamondCubeObjectID, DIAMOND_AXE_MASS, DiamondAxeObjectID, DIAMOND_MASS, DiamondObjectID, DiamondOreObjectID, COTTON_BLOCK_MASS, CottonBlockObjectID, CottonObjectID, COBBLESTONE_BRICK_MASS, CobblestoneBrickObjectID, CobblestoneObjectID, ChestObjectID, CHEST_MASS, ClayShinglesObjectID, CLAY_SHINGLES_MASS, CLAY_POLISHED_MASS, ClayPolishedObjectID, CLAY_CARVED_MASS, ClayCarvedObjectID, CLAY_BRICK_MASS, ClayBrickObjectID, DirtObjectID, ClayObjectID, CLAY_MASS, MuckshroomObjectID, BellflowerObjectID, BlueMushroomSporeObjectID, BLUE_MUSHROOM_SPORE_MASS, BirchLogObjectID, ReinforcedBirchLumberObjectID, REINFORCED_BIRCH_LUMBER_MASS, BirchLumberObjectID, SilverOreObjectID, BIRCH_LUMBER_MASS, OakLogObjectID, OakLumberObjectID, OAK_LUMBER_MASS, BASALT_BRICK_MASS, BASALT_CARVED_MASS, BASALT_POLISHED_MASS, BASALT_SHINGLES_MASS, WoodenPickObjectID, WOODEN_PICK_MASS, BasaltObjectID, PaperObjectID, BasaltBrickObjectID, BasaltCarvedObjectID, BasaltPolishedObjectID, BasaltShinglesObjectID, PAPER_MASS } from "@tenet-world/src/Constants.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 
@@ -469,6 +469,193 @@ contract RecipeSystemTwo is System {
             outputObjectProperties: abi.encode(outputObjectProperties)
         })
     );
+
+    // recipeOakReinforced
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = OakLumberObjectID; // Assuming OakLumberObjectID is defined
+    inputObjectTypeIds[1] = SilverOreObjectID; // Assuming SilverOreObjectID for "silver nugget", adjust if different
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Oak Lumber
+    inputObjectTypeAmounts[1] = 1; // 1 Silver Nugget
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = ReinforcedOakLumberObjectID; // TODO: Define ReinforcedOakLumberObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Reinforced Oak Lumber
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = REINFORCED_OAK_LUMBER_MASS; // TODO: Define mass for Reinforced Oak Lumber
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipePurifyMuckshroom
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = MuckshroomObjectID; // Assuming MuckshroomObjectID is defined
+    inputObjectTypeIds[1] = OakLumberObjectID; // TODO: Define LumberObjectID if using generic lumber instead of a specific type
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 2; // 2 Muckshroom
+    inputObjectTypeAmounts[1] = 4; // 4 Lumber
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = MuckshroomSporesObjectID; // TODO: Define MuckshroomSporesObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 1; // 1 Muckshroom Spores
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = MUCKSHROOM_SPORES_MASS; // TODO: Define mass for Muckshroom Spores
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeQuartziteBrick
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = QuartziteObjectID; // Defined earlier
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Quartzite
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = QuartziteBrickObjectID; // TODO: Define QuartziteBrickObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Quartzite Brick
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = QUARTZITE_BRICK_MASS; // TODO: Define QUARTZITE_BRICK_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeQuartziteCarved
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = QuartziteBrickObjectID; // From Quartzite Brick recipe
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Quartzite Brick
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = QuartziteCarvedObjectID; // TODO: Define QuartziteCarvedObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Quartzite Carved
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = QUARTZITE_CARVED_MASS; // TODO: Define QUARTZITE_CARVED_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeQuartzitePolished
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = QuartziteBrickObjectID; // TODO: Ensure QuartziteBrickObjectID is defined
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Quartzite Brick
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = QuartzitePolishedObjectID; // TODO: Define QuartzitePolishedObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Quartzite Polished
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = QUARTZITE_POLISHED_MASS; // TODO: Define QUARTZITE_POLISHED_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+    // recipeQuartziteShingles
+
+    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds[0] = QuartziteBrickObjectID; // TODO: Ensure QuartziteBrickObjectID is defined
+    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
+    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts[0] = 4; // 4 Quartzite Brick
+    inputObjectTypeAmounts[1] = 1; // 1 Paper
+
+    outputObjectTypeIds = new bytes32[](1);
+    outputObjectTypeIds[0] = QuartziteShinglesObjectID; // TODO: Define QuartziteShinglesObjectID
+    outputObjectTypeAmounts = new uint8[](1);
+    outputObjectTypeAmounts[0] = 4; // 4 Quartzite Shingles
+
+    outputObjectProperties = new ObjectProperties[](1);
+    outputOutputProperties.mass = QUARTZITE_SHINGLES_MASS; // TODO: Define QUARTZITE_SHINGLES_MASS
+    outputObjectProperties[0] = outputOutputProperties;
+
+    newRecipeId = getUniqueEntity();
+    Recipes.set(
+        newRecipeId,
+        RecipesData({
+            inputObjectTypeIds: inputObjectTypeIds,
+            inputObjectTypeAmounts: inputObjectTypeAmounts,
+            outputObjectTypeIds: outputObjectTypeIds,
+            outputObjectTypeAmounts: outputObjectTypeAmounts,
+            outputObjectProperties: abi.encode(outputObjectProperties)
+        })
+    );
+
+
+
+
+
+
+
 
   }
 }

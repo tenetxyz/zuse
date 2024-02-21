@@ -35,6 +35,10 @@ bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
 bytes32 constant MoonstoneObjectID = bytes32(keccak256("moonstone"));
 bytes32 constant GraniteObjectID = bytes32(keccak256("granite"));
 bytes32 constant QuartziteObjectID = bytes32(keccak256("quartzite"));
+bytes32 constant QuartziteBrickObjectID = bytes32(keccak256("quartzite-brick"));
+bytes32 constant QuartziteCarvedObjectID = bytes32(keccak256("quartzite-carved"));
+bytes32 constant QuartzitePolishedObjectID = bytes32(keccak256("quartzite-polished"));
+bytes32 constant QuartziteShinglesObjectID = bytes32(keccak256("quartzite-shingles"));
 bytes32 constant LimestoneObjectID = bytes32(keccak256("limestone"));
 bytes32 constant LimestoneBrickObjectID = bytes32(keccak256("limestone-brick"));
 bytes32 constant LimestoneCarvedObjectID = bytes32(keccak256("limestone-carved"));
@@ -77,6 +81,8 @@ bytes32 constant MossGrassObjectID = bytes32(keccak256("moss-grass"));
 bytes32 constant SwitchGrassObjectID = bytes32(keccak256("switch-grass"));
 bytes32 constant OakLogObjectID = bytes32(keccak256("oak-log"));
 bytes32 constant OakLumberObjectID = bytes32(keccak256("oak-lumber"));
+bytes32 constant MuckshroomSporesObjectID = bytes32(keccak256("muckshroom-spores"));
+bytes32 constant ReinforcedOakLumberObjectID = bytes32(keccak256("reinforced-oak-lumber"));
 bytes32 constant SakuraLumberObjectID = bytes32(keccak256("sakura-lumber"));
 bytes32 constant RubberLumberObjectID = bytes32(keccak256("rubber-lumber"));
 bytes32 constant GraniteBrickObjectID = bytes32(keccak256("granite-brick"));
@@ -161,6 +167,12 @@ uint256 constant LIMESTONE_SHINGLES_MASS = 7;
 
 uint256 constant EMBERSTONE_MASS = 14; 
 uint256 constant QUARTZITE_MASS = 10;
+
+uint256 constant QUARTZITE_BRICK_MASS = 10;
+uint256 constant QUARTZITE_CARVED_MASS = 10;
+uint256 constant QUARTZITE_POLISHED_MASS = 10;
+uint256 constant QUARTZITE_SHINGLES_MASS = 10;
+
 uint256 constant SUNSTONE_MASS = 15;
 uint256 constant MOONSTONE_MASS = 17;
 
@@ -170,6 +182,8 @@ uint256 constant SAKURA_LOG_MASS = 4;
 uint256 constant RUBBER_LOG_MASS = 4;
 
 uint256 constant OAK_LUMBER_MASS = 1;
+uint256 constant REINFORCED_OAK_LUMBER_MASS = 13;
+
 uint256 constant BIRCH_LUMBER_MASS = 1;
 
 uint256 constant OAK_LEAF_MASS = 1;
@@ -196,6 +210,8 @@ uint256 constant BASALT_SHINGLES_MASS = 11;
 uint256 constant REINFORCED_BIRCH_LUMBER_MASS = 6;
 
 uint256 constant MUCKSHROOM_MASS = 1;
+uint256 constant MUCKSHROOM_SPORES_MASS = 6;
+
 uint256 constant BELLFLOWER_MASS = 1;
 uint256 constant BLUE_MUSHROOM_SPORE_MASS = 5;
 

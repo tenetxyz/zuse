@@ -55,12 +55,18 @@ bytes32 constant GoldBarObjectID = bytes32(keccak256("gold-bar"));
 bytes32 constant GoldCubeObjectID = bytes32(keccak256("gold-cube"));
 bytes32 constant GoldAxeObjectID = bytes32(keccak256("gold-axe"));
 bytes32 constant GoldPickObjectID = bytes32(keccak256("gold-pick"));
+bytes32 constant NeptuniumAxeObjectID = bytes32(keccak256("neptunium-axe"));
+bytes32 constant NeptuniumPickObjectID = bytes32(keccak256("neptunium-pick"));
 bytes32 constant CoalOreObjectID = bytes32(keccak256("coal-ore"));
 bytes32 constant SilverOreObjectID = bytes32(keccak256("silver-ore"));
 bytes32 constant NeptuniumOreObjectID = bytes32(keccak256("neptunium-ore"));
+bytes32 constant NeptuniumBarObjectID = bytes32(keccak256("neptunium-bar"));
+bytes32 constant NeptuniumCubeObjectID = bytes32(keccak256("neptunium-cube"));
 bytes32 constant GrassObjectID = bytes32(keccak256("grass"));
 bytes32 constant MuckGrassObjectID = bytes32(keccak256("muck-grass"));
 bytes32 constant MuckshroomObjectID = bytes32(keccak256("muckshroom"));
+bytes32 constant RedMushroomObjectID = bytes32(keccak256("red-mushroom"));
+bytes32 constant MushroomLeatherBlockObjectID = bytes32(keccak256("mushroom-leather"));
 bytes32 constant BellflowerObjectID = bytes32(keccak256("bellflower"));
 bytes32 constant BlueMushroomSporeObjectID = bytes32(keccak256("blue-mushroom-spore"));
 bytes32 constant DirtObjectID = bytes32(keccak256("dirt"));
@@ -129,6 +135,8 @@ uint256 constant DIAMOND_MASS = 60;
 uint256 constant DIAMOND_CUBE_MASS = 480; //60 * 8 = 480
 
 uint256 constant NEPTUNIUM_ORE_MASS = 20;
+uint256 constant NEPTUNIUM_BAR_MASS = 80;
+uint256 constant NEPTUNIUM_CUBE_MASS = 640; //80 * 8 = 640
 
 uint256 constant SNOW_MASS = 1;
 uint256 constant ASPHALT_MASS = 8;
@@ -152,9 +160,9 @@ uint256 constant LIMESTONE_POLISHED_MASS = 7;
 uint256 constant LIMESTONE_SHINGLES_MASS = 7;
 
 uint256 constant EMBERSTONE_MASS = 14; 
-uint256 constant MOONSTONE_MASS = 15;
 uint256 constant QUARTZITE_MASS = 10;
 uint256 constant SUNSTONE_MASS = 15;
+uint256 constant MOONSTONE_MASS = 17;
 
 uint256 constant OAK_LOG_MASS = 4;
 uint256 constant BIRCH_LOG_MASS = 4;
@@ -172,8 +180,12 @@ uint256 constant RUBBER_LEAF_MASS = 1;
 uint256 constant CHEST_MASS = 24;
 
 uint256 constant WOODEN_PICK_MASS = 16;
+
 uint256 constant DIAMOND_AXE_MASS = 196;
 uint256 constant DIAMOND_PICK_MASS = 196;
+
+uint256 constant NEPTUNIUM_AXE_MASS = 336;
+uint256 constant NEPTUNIUM_PICK_MASS = 336;
 
 uint256 constant PAPER_MASS = 1;
 uint256 constant BASALT_BRICK_MASS = 10;
@@ -186,6 +198,9 @@ uint256 constant REINFORCED_BIRCH_LUMBER_MASS = 6;
 uint256 constant MUCKSHROOM_MASS = 1;
 uint256 constant BELLFLOWER_MASS = 1;
 uint256 constant BLUE_MUSHROOM_SPORE_MASS = 5;
+
+uint256 constant RED_MUSHROOM = 2;
+uint256 constant MUSHROOM_LEATHER_BLOCK_MASS = 8;
 
 uint256 constant CLAY_BRICK_MASS = 16;
 uint256 constant CLAY_CARVED_MASS = 16;

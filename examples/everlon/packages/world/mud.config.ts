@@ -68,8 +68,8 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
-    RecipeSystemThree: {
-      name: "RecipeSystemThree",
+    RecipeSysThree: {
+      name: "RecipeSysThree",
       openAccess: true,
       registerAsRoot: true,
     },

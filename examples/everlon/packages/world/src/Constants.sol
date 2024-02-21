@@ -30,6 +30,14 @@ bytes32 constant ClayShinglesObjectID = bytes32(keccak256("clay-shingles"));
 bytes32 constant CottonObjectID = bytes32(keccak256("cotton"));
 bytes32 constant CottonBlockObjectID = bytes32(keccak256("cotton-block"));
 bytes32 constant StoneObjectID = bytes32(keccak256("stone"));
+bytes32 constant StoneAxeObjectID = bytes32(keccak256("stone-axe"));
+bytes32 constant StonePickObjectID = bytes32(keccak256("stone-pick"));
+bytes32 constant StoneWhackerObjectID = bytes32(keccak256("stone-pick"));
+bytes32 constant StoneShinglesObjectID = bytes32(keccak256("stone-shingles"));
+bytes32 constant PolishedStoneObjectID = bytes32(keccak256("polished-stone"));
+bytes32 constant StoneCarvedObjectID = bytes32(keccak256("stone-carved"));
+bytes32 constant StoneBrickObjectID = bytes32(keccak256("stone-brick"));
+
 bytes32 constant RubbleObjectID = bytes32(keccak256("rubble"));
 bytes32 constant EmberstoneObjectID = bytes32(keccak256("emberstone"));
 bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
@@ -168,6 +176,15 @@ uint256 constant SAND_MASS = 2;
 uint256 constant GLASS_MASS = 11;
 
 uint256 constant STONE_MASS = 7;
+uint256 constant STONE_AXE_MASS = 72; //56 + 16 = 72
+uint256 constant STONE_PICK_MASS = 72; //56 + 16 = 72
+uint256 constant STONE_WHACKER_MASS = 36; //7*4 + 4*2 = 36
+
+uint256 constant POLISHED_STONE_MASS = 7;
+uint256 constant STONE_CARVED_MASS = 7;
+uint256 constant STONE_BRICK_MASS = 7;
+uint256 constant STONE_SHINGLES_MASS = 7;
+
 uint256 constant RUBBLE_MASS = 2;
 uint256 constant COBBLESTONE_MASS = 7;
 uint256 constant GRANITE_MASS = 11;
@@ -251,8 +268,6 @@ uint256 constant CLAY_SHINGLES_MASS = 16;
 
 uint256 constant COBBLESTONE_BRICK_MASS = 7;
 uint256 constant COTTON_BLOCK_MASS = 4;
-
-
 
 // Terrain
 enum Biome {

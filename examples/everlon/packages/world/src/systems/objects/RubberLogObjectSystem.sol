@@ -19,6 +19,7 @@ contract RubberLogObjectSystem is ObjectType {
       IWorld(world).world_RubberLogObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Rubber Log"
     );
   }

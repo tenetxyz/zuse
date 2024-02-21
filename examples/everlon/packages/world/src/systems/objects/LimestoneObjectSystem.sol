@@ -19,6 +19,7 @@ contract LimestoneObjectSystem is ObjectType {
       IWorld(world).world_LimestoneObjectS_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Limestone"
     );
   }

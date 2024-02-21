@@ -29,6 +29,7 @@ struct ObjectTypeRegistryData {
   bytes4 neighbourEventHandlerSelector;
   uint8 stackable;
   uint16 maxUses;
+  uint16 damage;
   string name;
 }
 
@@ -43,7 +44,7 @@ library ObjectTypeRegistry {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](9);
+    SchemaType[] memory _schema = new SchemaType[](10);
     _schema[0] = SchemaType.ADDRESS;
     _schema[1] = SchemaType.ADDRESS;
     _schema[2] = SchemaType.BYTES4;
@@ -52,7 +53,8 @@ library ObjectTypeRegistry {
     _schema[5] = SchemaType.BYTES4;
     _schema[6] = SchemaType.UINT8;
     _schema[7] = SchemaType.UINT16;
-    _schema[8] = SchemaType.STRING;
+    _schema[8] = SchemaType.UINT16;
+    _schema[9] = SchemaType.STRING;
 
     return SchemaLib.encode(_schema);
   }
@@ -65,7 +67,7 @@ library ObjectTypeRegistry {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](9);
+    fieldNames = new string[](10);
     fieldNames[0] = "creator";
     fieldNames[1] = "contractAddress";
     fieldNames[2] = "enterWorldSelector";
@@ -74,7 +76,8 @@ library ObjectTypeRegistry {
     fieldNames[5] = "neighbourEventHandlerSelector";
     fieldNames[6] = "stackable";
     fieldNames[7] = "maxUses";
-    fieldNames[8] = "name";
+    fieldNames[8] = "damage";
+    fieldNames[9] = "name";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -374,12 +377,46 @@ library ObjectTypeRegistry {
     _store.setField(_tableId, _keyTuple, 7, abi.encodePacked((maxUses)), getValueSchema());
   }
 
+  /** Get damage */
+  function getDamage(bytes32 objectTypeId) internal view returns (uint16 damage) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 8, getValueSchema());
+    return (uint16(Bytes.slice2(_blob, 0)));
+  }
+
+  /** Get damage (using the specified store) */
+  function getDamage(IStore _store, bytes32 objectTypeId) internal view returns (uint16 damage) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 8, getValueSchema());
+    return (uint16(Bytes.slice2(_blob, 0)));
+  }
+
+  /** Set damage */
+  function setDamage(bytes32 objectTypeId, uint16 damage) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 8, abi.encodePacked((damage)), getValueSchema());
+  }
+
+  /** Set damage (using the specified store) */
+  function setDamage(IStore _store, bytes32 objectTypeId, uint16 damage) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = objectTypeId;
+
+    _store.setField(_tableId, _keyTuple, 8, abi.encodePacked((damage)), getValueSchema());
+  }
+
   /** Get name */
   function getName(bytes32 objectTypeId) internal view returns (string memory name) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 8, getValueSchema());
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 9, getValueSchema());
     return (string(_blob));
   }
 
@@ -388,7 +425,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 8, getValueSchema());
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 9, getValueSchema());
     return (string(_blob));
   }
 
@@ -397,7 +434,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 8, bytes((name)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 9, bytes((name)), getValueSchema());
   }
 
   /** Set name (using the specified store) */
@@ -405,7 +442,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    _store.setField(_tableId, _keyTuple, 8, bytes((name)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 9, bytes((name)), getValueSchema());
   }
 
   /** Get the length of name */
@@ -413,7 +450,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 8, getValueSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 9, getValueSchema());
     unchecked {
       return _byteLength / 1;
     }
@@ -424,7 +461,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 8, getValueSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 9, getValueSchema());
     unchecked {
       return _byteLength / 1;
     }
@@ -442,7 +479,7 @@ library ObjectTypeRegistry {
       bytes memory _blob = StoreSwitch.getFieldSlice(
         _tableId,
         _keyTuple,
-        8,
+        9,
         getValueSchema(),
         _index * 1,
         (_index + 1) * 1
@@ -460,7 +497,7 @@ library ObjectTypeRegistry {
     _keyTuple[0] = objectTypeId;
 
     unchecked {
-      bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 8, getValueSchema(), _index * 1, (_index + 1) * 1);
+      bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 9, getValueSchema(), _index * 1, (_index + 1) * 1);
       return (string(_blob));
     }
   }
@@ -470,7 +507,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 8, bytes((_slice)), getValueSchema());
+    StoreSwitch.pushToField(_tableId, _keyTuple, 9, bytes((_slice)), getValueSchema());
   }
 
   /** Push a slice to name (using the specified store) */
@@ -478,7 +515,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    _store.pushToField(_tableId, _keyTuple, 8, bytes((_slice)), getValueSchema());
+    _store.pushToField(_tableId, _keyTuple, 9, bytes((_slice)), getValueSchema());
   }
 
   /** Pop a slice from name */
@@ -486,7 +523,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 8, 1, getValueSchema());
+    StoreSwitch.popFromField(_tableId, _keyTuple, 9, 1, getValueSchema());
   }
 
   /** Pop a slice from name (using the specified store) */
@@ -494,7 +531,7 @@ library ObjectTypeRegistry {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = objectTypeId;
 
-    _store.popFromField(_tableId, _keyTuple, 8, 1, getValueSchema());
+    _store.popFromField(_tableId, _keyTuple, 9, 1, getValueSchema());
   }
 
   /**
@@ -506,7 +543,7 @@ library ObjectTypeRegistry {
     _keyTuple[0] = objectTypeId;
 
     unchecked {
-      StoreSwitch.updateInField(_tableId, _keyTuple, 8, _index * 1, bytes((_slice)), getValueSchema());
+      StoreSwitch.updateInField(_tableId, _keyTuple, 9, _index * 1, bytes((_slice)), getValueSchema());
     }
   }
 
@@ -519,7 +556,7 @@ library ObjectTypeRegistry {
     _keyTuple[0] = objectTypeId;
 
     unchecked {
-      _store.updateInField(_tableId, _keyTuple, 8, _index * 1, bytes((_slice)), getValueSchema());
+      _store.updateInField(_tableId, _keyTuple, 9, _index * 1, bytes((_slice)), getValueSchema());
     }
   }
 
@@ -552,6 +589,7 @@ library ObjectTypeRegistry {
     bytes4 neighbourEventHandlerSelector,
     uint8 stackable,
     uint16 maxUses,
+    uint16 damage,
     string memory name
   ) internal {
     bytes memory _data = encode(
@@ -563,6 +601,7 @@ library ObjectTypeRegistry {
       neighbourEventHandlerSelector,
       stackable,
       maxUses,
+      damage,
       name
     );
 
@@ -584,6 +623,7 @@ library ObjectTypeRegistry {
     bytes4 neighbourEventHandlerSelector,
     uint8 stackable,
     uint16 maxUses,
+    uint16 damage,
     string memory name
   ) internal {
     bytes memory _data = encode(
@@ -595,6 +635,7 @@ library ObjectTypeRegistry {
       neighbourEventHandlerSelector,
       stackable,
       maxUses,
+      damage,
       name
     );
 
@@ -616,6 +657,7 @@ library ObjectTypeRegistry {
       _table.neighbourEventHandlerSelector,
       _table.stackable,
       _table.maxUses,
+      _table.damage,
       _table.name
     );
   }
@@ -633,6 +675,7 @@ library ObjectTypeRegistry {
       _table.neighbourEventHandlerSelector,
       _table.stackable,
       _table.maxUses,
+      _table.damage,
       _table.name
     );
   }
@@ -642,8 +685,8 @@ library ObjectTypeRegistry {
    * Undefined behaviour for invalid blobs.
    */
   function decode(bytes memory _blob) internal pure returns (ObjectTypeRegistryData memory _table) {
-    // 59 is the total byte length of static data
-    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 59));
+    // 61 is the total byte length of static data
+    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 61));
 
     _table.creator = (address(Bytes.slice20(_blob, 0)));
 
@@ -661,13 +704,15 @@ library ObjectTypeRegistry {
 
     _table.maxUses = (uint16(Bytes.slice2(_blob, 57)));
 
+    _table.damage = (uint16(Bytes.slice2(_blob, 59)));
+
     // Store trims the blob if dynamic fields are all empty
-    if (_blob.length > 59) {
+    if (_blob.length > 61) {
       // skip static data length + dynamic lengths word
-      uint256 _start = 91;
+      uint256 _start = 93;
       uint256 _end;
       unchecked {
-        _end = 91 + _encodedLengths.atIndex(0);
+        _end = 93 + _encodedLengths.atIndex(0);
       }
       _table.name = (string(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
     }
@@ -683,6 +728,7 @@ library ObjectTypeRegistry {
     bytes4 neighbourEventHandlerSelector,
     uint8 stackable,
     uint16 maxUses,
+    uint16 damage,
     string memory name
   ) internal pure returns (bytes memory) {
     PackedCounter _encodedLengths;
@@ -701,6 +747,7 @@ library ObjectTypeRegistry {
         neighbourEventHandlerSelector,
         stackable,
         maxUses,
+        damage,
         _encodedLengths.unwrap(),
         bytes((name))
       );

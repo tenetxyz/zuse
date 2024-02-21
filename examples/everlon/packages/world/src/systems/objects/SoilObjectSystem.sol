@@ -19,6 +19,7 @@ contract SoilObjectSystem is ObjectType {
       IWorld(world).world_SoilObjectSystem_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Soil"
     );
   }

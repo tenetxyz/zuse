@@ -15,6 +15,7 @@ contract ObjectRegistrySystem is System {
     bytes4 neighbourEventHandlerSelector,
     uint8 stackable,
     uint16 maxUses,
+    uint16 damage,
     string memory name
   ) public {
     require(
@@ -36,6 +37,7 @@ contract ObjectRegistrySystem is System {
         neighbourEventHandlerSelector: neighbourEventHandlerSelector,
         stackable: stackable,
         maxUses: maxUses,
+        damage: damage,
         name: name
       })
     );

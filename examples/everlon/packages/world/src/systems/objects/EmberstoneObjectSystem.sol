@@ -19,6 +19,7 @@ contract EmberstoneObjectSystem is ObjectType {
       IWorld(world).world_EmberstoneObject_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Emberstone"
     );
   }

@@ -19,6 +19,7 @@ contract WoodenPickObjectSystem is ObjectType {
       IWorld(world).world_WoodenPickObject_neighbourEventHandler.selector,
       1,
       50,
+      80,
       "Wooden Pick"
     );
   }

@@ -154,6 +154,7 @@ async function main() {
       neighbourEventHandlerSelector,
       99,
       0,
+      0,
       objectTypeDisplayName
     );
 

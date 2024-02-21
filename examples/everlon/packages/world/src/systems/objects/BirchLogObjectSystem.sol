@@ -19,6 +19,7 @@ contract BirchLogObjectSystem is ObjectType {
       IWorld(world).world_BirchLogObjectSy_neighbourEventHandler.selector,
       NUM_BLOCK_STACKABLE,
       0,
+      0,
       "Birch Log"
     );
   }

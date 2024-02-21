@@ -109,6 +109,8 @@ bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
 bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
+bytes32 constant WoodenAxeObjectID = bytes32(keccak256("wooden-axe"));
+bytes32 constant WoodenWhackerObjectID = bytes32(keccak256("wooden-whacker"));
 bytes32 constant DiamondAxeObjectID = bytes32(keccak256("diamond-axe"));
 bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-axe"));
 
@@ -188,7 +190,7 @@ uint256 constant QUARTZITE_CARVED_MASS = 10;
 uint256 constant QUARTZITE_POLISHED_MASS = 10;
 uint256 constant QUARTZITE_SHINGLES_MASS = 10;
 
-uint256 constant SUNSTONE_MASS = 15;
+uint256 constant SUNSTONE_MASS = 14;
 uint256 constant MOONSTONE_MASS = 17;
 
 uint256 constant OAK_LOG_MASS = 4;
@@ -214,6 +216,8 @@ uint256 constant RUBBER_LEAF_MASS = 1;
 uint256 constant CHEST_MASS = 24;
 
 uint256 constant WOODEN_PICK_MASS = 16;
+uint256 constant WOODEN_AXE_MASS = 16;
+uint256 constant WOODEN_WHACKER_MASS = 32;
 
 uint256 constant DIAMOND_AXE_MASS = 196;
 uint256 constant DIAMOND_PICK_MASS = 196;

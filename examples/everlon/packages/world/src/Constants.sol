@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { REGISTRY_ADDRESS } from "@tenet-base-world/src/Constants.sol";
 
-address constant SIMULATOR_ADDRESS = 0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44;
+address constant SIMULATOR_ADDRESS = 0xE205724c1B07DB5186F9E547dA3a7914efdC8E58;
 
 uint256 constant NUM_MAX_OBJECTS_INTERACTION_RUN = 1000;
 uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;

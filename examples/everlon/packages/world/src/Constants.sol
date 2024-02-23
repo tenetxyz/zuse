@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { REGISTRY_ADDRESS } from "@tenet-base-world/src/Constants.sol";
 
-address constant SIMULATOR_ADDRESS = 0xE205724c1B07DB5186F9E547dA3a7914efdC8E58;
+address constant SIMULATOR_ADDRESS = 0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44;
 
 uint256 constant NUM_MAX_OBJECTS_INTERACTION_RUN = 1000;
 uint256 constant NUM_MAX_UNIQUE_OBJECT_EVENT_HANDLERS_RUN = 15;
@@ -82,6 +82,7 @@ bytes32 constant NeptuniumCubeObjectID = bytes32(keccak256("neptunium-cube"));
 bytes32 constant GrassObjectID = bytes32(keccak256("grass"));
 bytes32 constant HempObjectID = bytes32(keccak256("hemp"));
 bytes32 constant LilacObjectID = bytes32(keccak256("lilac"));
+bytes32 constant DandelionObjectID = bytes32(keccak256("dandelion"));
 bytes32 constant MuckGrassObjectID = bytes32(keccak256("muck-grass"));
 bytes32 constant MuckshroomObjectID = bytes32(keccak256("muckshroom"));
 bytes32 constant RedMushroomObjectID = bytes32(keccak256("red-mushroom"));
@@ -116,6 +117,8 @@ bytes32 constant BirchLeafObjectID = bytes32(keccak256("birch-leaf"));
 bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
 bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
 bytes32 constant DaylilyObjectID = bytes32(keccak256("daylily"));
+bytes32 constant AzaleaObjectID = bytes32(keccak256("azalea"));
+bytes32 constant RoseObjectID = bytes32(keccak256("rose"));
 bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
@@ -123,14 +126,20 @@ bytes32 constant WoodenAxeObjectID = bytes32(keccak256("wooden-axe"));
 bytes32 constant WoodenWhackerObjectID = bytes32(keccak256("wooden-whacker"));
 bytes32 constant DiamondAxeObjectID = bytes32(keccak256("diamond-axe"));
 bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-axe"));
-
 bytes32 constant DiamondCubeObjectID = bytes32(keccak256("diamond-cube"));
-
 bytes32 constant BlueDyeObjectID = bytes32(keccak256("blue-dye"));
 bytes32 constant BrownDyeObjectID = bytes32(keccak256("brown-dye"));
 bytes32 constant GreenDyeObjectID = bytes32(keccak256("green-dye"));
 bytes32 constant MagentaDyeObjectID = bytes32(keccak256("magenta-dye"));
 bytes32 constant OrangeDyeObjectID = bytes32(keccak256("orange-dye"));
+bytes32 constant PinkDyeObjectID = bytes32(keccak256("pink-dye"));
+bytes32 constant PurpleDyeObjectID = bytes32(keccak256("purple-dye"));
+bytes32 constant RedDyeObjectID = bytes32(keccak256("red-dye"));
+bytes32 constant TanDyeObjectID = bytes32(keccak256("tan-dye"));
+bytes32 constant WhiteDyeObjectID = bytes32(keccak256("white-dye"));
+bytes32 constant YellowDyeObjectID = bytes32(keccak256("yellow-dye"));
+bytes32 constant BlackDyeObjectID = bytes32(keccak256("black-dye"));
+bytes32 constant SilverDyeObjectID = bytes32(keccak256("silver-dye"));
 
 
 // Agents
@@ -154,7 +163,10 @@ uint256 constant MUCK_GRASS_MASS = 4;
 uint256 constant GRASS_MASS = 4;
 uint256 constant HEMP_MASS = 1;
 uint256 constant LILAC_MASS = 1;
+uint256 constant DANDELION_MASS = 1;
+uint256 constant ROSE_MASS = 1;
 uint256 constant DAYLILY_MASS = 1;
+uint256 constant AZALEA_MASS = 1;
 
 uint256 constant MUCK_DIRT_MASS = 4;
 uint256 constant DIRT_MASS = 4;
@@ -273,6 +285,14 @@ uint256 constant BROWN_DYE_MASS = 1;
 uint256 constant GREEN_DYE_MASS = 1;
 uint256 constant MAGENTA_DYE_MASS = 1;
 uint256 constant ORANGE_DYE_MASS = 1;
+uint256 constant PINK_DYE_MASS = 1;
+uint256 constant PURPLE_DYE_MASS = 1;
+uint256 constant RED_DYE_MASS = 1;
+uint256 constant TAN_DYE_MASS = 1;
+uint256 constant WHITE_DYE_MASS = 1;
+uint256 constant YELLOW_DYE_MASS = 1;
+uint256 constant BLACK_DYE_MASS = 1;
+uint256 constant SILVER_DYE_MASS = 1;
 
 uint256 constant BLUE_MUSHROOM_SPORE_MASS = 5;
 

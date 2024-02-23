@@ -83,8 +83,8 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
-    RecipeColorCotton: {
-      name: "RecipeColorCotton",
+    RecipeColorCott: {
+      name: "RecipeColorCott",
       openAccess: true,
       registerAsRoot: true,
     },

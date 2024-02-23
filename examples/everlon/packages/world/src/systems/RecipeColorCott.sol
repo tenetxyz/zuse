@@ -31,8 +31,8 @@ SilverCottonBlockObjectID, SILVER_COTTON_BLOCK_MASS,
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 
 
-contract RecipeColorCotton is System {
-  function initRecipeColorCotton() public {
+contract RecipeColorCott is System {
+  function initRecipeColorCott() public {
     
     // recipeBlueCottonBlock
 

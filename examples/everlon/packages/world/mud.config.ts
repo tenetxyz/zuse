@@ -83,6 +83,11 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
+    RecipeColorCotton: {
+      name: "RecipeColorCotton",
+      openAccess: true,
+      registerAsRoot: true,
+    },
     FaucetSystem: {
       name: "FaucetSystem",
       openAccess: true,

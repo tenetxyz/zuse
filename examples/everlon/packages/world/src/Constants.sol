@@ -140,6 +140,7 @@ bytes32 constant WhiteDyeObjectID = bytes32(keccak256("white-dye"));
 bytes32 constant YellowDyeObjectID = bytes32(keccak256("yellow-dye"));
 bytes32 constant BlackDyeObjectID = bytes32(keccak256("black-dye"));
 bytes32 constant SilverDyeObjectID = bytes32(keccak256("silver-dye"));
+
 bytes32 constant BlueOakLumberObjectID = bytes32(keccak256("blue-oak-lumber"));
 bytes32 constant BrownOakLumberObjectID = bytes32(keccak256("brown-oak-lumber"));
 bytes32 constant GreenOakLumberObjectID = bytes32(keccak256("green-oak-lumber"));
@@ -154,6 +155,19 @@ bytes32 constant YellowOakLumberObjectID = bytes32(keccak256("yellow-oak-lumber"
 bytes32 constant BlackOakLumberObjectID = bytes32(keccak256("black-oak-lumber"));
 bytes32 constant SilverOakLumberObjectID = bytes32(keccak256("silver-oak-lumber"));
 
+bytes32 constant BlueCottonBlockObjectID = bytes32(keccak256("blue-cotton-block"));
+bytes32 constant BrownCottonBlockObjectID = bytes32(keccak256("brown-cotton-block"));
+bytes32 constant GreenCottonBlockObjectID = bytes32(keccak256("green-cotton-block"));
+bytes32 constant MagentaCottonBlockObjectID = bytes32(keccak256("magenta-cotton-block"));
+bytes32 constant OrangeCottonBlockObjectID = bytes32(keccak256("orange-cotton-block"));
+bytes32 constant PinkCottonBlockObjectID = bytes32(keccak256("pink-cotton-block"));
+bytes32 constant PurpleCottonBlockObjectID = bytes32(keccak256("purple-cotton-block"));
+bytes32 constant RedCottonBlockObjectID = bytes32(keccak256("red-cotton-block"));
+bytes32 constant TanCottonBlockObjectID = bytes32(keccak256("tan-cotton-block"));
+bytes32 constant WhiteCottonBlockObjectID = bytes32(keccak256("white-cotton-block"));
+bytes32 constant YellowCottonBlockObjectID = bytes32(keccak256("yellow-cotton-block"));
+bytes32 constant BlackCottonBlockObjectID = bytes32(keccak256("black-cotton-block"));
+bytes32 constant SilverCottonBlockObjectID = bytes32(keccak256("silver-cotton-block"));
 
 
 // Agents
@@ -284,6 +298,20 @@ uint256 constant WHITE_OAK_LUMBER_MASS = 2;
 uint256 constant YELLOW_OAK_LUMBER_MASS = 2;
 uint256 constant BLACK_OAK_LUMBER_MASS = 2;
 uint256 constant SILVER_OAK_LUMBER_MASS = 2;
+
+uint256 constant BLUE_COTTON_BLOCK_MASS = 2;
+uint256 constant BROWN_COTTON_BLOCK_MASS = 2;
+uint256 constant GREEN_COTTON_BLOCK_MASS = 2;
+uint256 constant MAGENTA_COTTON_BLOCK_MASS = 2;
+uint256 constant ORANGE_COTTON_BLOCK_MASS = 2;
+uint256 constant PINK_COTTON_BLOCK_MASS = 2;
+uint256 constant PURPLE_COTTON_BLOCK_MASS = 2;
+uint256 constant RED_COTTON_BLOCK_MASS = 2;
+uint256 constant TAN_COTTON_BLOCK_MASS = 2;
+uint256 constant WHITE_COTTON_BLOCK_MASS = 2;
+uint256 constant YELLOW_COTTON_BLOCK_MASS = 2;
+uint256 constant BLACK_COTTON_BLOCK_MASS = 2;
+uint256 constant SILVER_COTTON_BLOCK_MASS = 2;
 
 uint256 constant WOODEN_PICK_MASS = 16;
 uint256 constant WOODEN_AXE_MASS = 16;

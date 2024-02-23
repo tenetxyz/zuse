@@ -169,6 +169,20 @@ bytes32 constant YellowCottonBlockObjectID = bytes32(keccak256("yellow-cotton-bl
 bytes32 constant BlackCottonBlockObjectID = bytes32(keccak256("black-cotton-block"));
 bytes32 constant SilverCottonBlockObjectID = bytes32(keccak256("silver-cotton-block"));
 
+bytes32 constant BlueGlassObjectID = bytes32(keccak256("blue-glass"));
+bytes32 constant BrownGlassObjectID = bytes32(keccak256("brown-glass"));
+bytes32 constant GreenGlassObjectID = bytes32(keccak256("green-glass"));
+bytes32 constant MagentaGlassObjectID = bytes32(keccak256("magenta-glass"));
+bytes32 constant OrangeGlassObjectID = bytes32(keccak256("orange-glass"));
+bytes32 constant PinkGlassObjectID = bytes32(keccak256("pink-glass"));
+bytes32 constant PurpleGlassObjectID = bytes32(keccak256("purple-glass"));
+bytes32 constant RedGlassObjectID = bytes32(keccak256("red-glass"));
+bytes32 constant TanGlassObjectID = bytes32(keccak256("tan-glass"));
+bytes32 constant WhiteGlassObjectID = bytes32(keccak256("white-glass"));
+bytes32 constant YellowGlassObjectID = bytes32(keccak256("yellow-glass"));
+bytes32 constant BlackGlassObjectID = bytes32(keccak256("black-glass"));
+bytes32 constant SilverGlassObjectID = bytes32(keccak256("silver-glass"));
+
 
 // Agents
 bytes32 constant BuilderObjectID = bytes32(keccak256("builder"));
@@ -312,6 +326,20 @@ uint256 constant WHITE_COTTON_BLOCK_MASS = 5;
 uint256 constant YELLOW_COTTON_BLOCK_MASS = 5;
 uint256 constant BLACK_COTTON_BLOCK_MASS = 5;
 uint256 constant SILVER_COTTON_BLOCK_MASS = 5;
+
+uint256 constant BLUE_GLASS_MASS = 5;
+uint256 constant BROWN_GLASS_MASS = 5;
+uint256 constant GREEN_GLASS_MASS = 5;
+uint256 constant MAGENTA_GLASS_MASS = 5;
+uint256 constant ORANGE_GLASS_MASS = 5;
+uint256 constant PINK_GLASS_MASS = 5;
+uint256 constant PURPLE_GLASS_MASS = 5;
+uint256 constant RED_GLASS_MASS = 5;
+uint256 constant TAN_GLASS_MASS = 5;
+uint256 constant WHITE_GLASS_MASS = 5;
+uint256 constant YELLOW_GLASS_MASS = 5;
+uint256 constant BLACK_GLASS_MASS = 5;
+uint256 constant SILVER_GLASS_MASS = 5;
 
 uint256 constant WOODEN_PICK_MASS = 16;
 uint256 constant WOODEN_AXE_MASS = 16;

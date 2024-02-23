@@ -140,6 +140,20 @@ bytes32 constant WhiteDyeObjectID = bytes32(keccak256("white-dye"));
 bytes32 constant YellowDyeObjectID = bytes32(keccak256("yellow-dye"));
 bytes32 constant BlackDyeObjectID = bytes32(keccak256("black-dye"));
 bytes32 constant SilverDyeObjectID = bytes32(keccak256("silver-dye"));
+bytes32 constant BlueOakLumberObjectID = bytes32(keccak256("blue-oak-lumber"));
+bytes32 constant BrownOakLumberObjectID = bytes32(keccak256("brown-oak-lumber"));
+bytes32 constant GreenOakLumberObjectID = bytes32(keccak256("green-oak-lumber"));
+bytes32 constant MagentaOakLumberObjectID = bytes32(keccak256("magenta-oak-lumber"));
+bytes32 constant OrangeOakLumberObjectID = bytes32(keccak256("orange-oak-lumber"));
+bytes32 constant PinkOakLumberObjectID = bytes32(keccak256("pink-oak-lumber"));
+bytes32 constant PurpleOakLumberObjectID = bytes32(keccak256("purple-oak-lumber"));
+bytes32 constant RedOakLumberObjectID = bytes32(keccak256("red-oak-lumber"));
+bytes32 constant TanOakLumberObjectID = bytes32(keccak256("tan-oak-lumber"));
+bytes32 constant WhiteOakLumberObjectID = bytes32(keccak256("white-oak-lumber"));
+bytes32 constant YellowOakLumberObjectID = bytes32(keccak256("yellow-oak-lumber"));
+bytes32 constant BlackOakLumberObjectID = bytes32(keccak256("black-oak-lumber"));
+bytes32 constant SilverOakLumberObjectID = bytes32(keccak256("silver-oak-lumber"));
+
 
 
 // Agents
@@ -256,6 +270,20 @@ uint256 constant SAKURA_LEAF_MASS = 1;
 uint256 constant RUBBER_LEAF_MASS = 1;
 
 uint256 constant CHEST_MASS = 24;
+
+uint256 constant BLUE_OAK_LUMBER_MASS = 2;
+uint256 constant BROWN_OAK_LUMBER_MASS = 2;
+uint256 constant GREEN_OAK_LUMBER_MASS = 2;
+uint256 constant MAGENTA_OAK_LUMBER_MASS = 2;
+uint256 constant ORANGE_OAK_LUMBER_MASS = 2;
+uint256 constant PINK_OAK_LUMBER_MASS = 2;
+uint256 constant PURPLE_OAK_LUMBER_MASS = 2;
+uint256 constant RED_OAK_LUMBER_MASS = 2;
+uint256 constant TAN_OAK_LUMBER_MASS = 2;
+uint256 constant WHITE_OAK_LUMBER_MASS = 2;
+uint256 constant YELLOW_OAK_LUMBER_MASS = 2;
+uint256 constant BLACK_OAK_LUMBER_MASS = 2;
+uint256 constant SILVER_OAK_LUMBER_MASS = 2;
 
 uint256 constant WOODEN_PICK_MASS = 16;
 uint256 constant WOODEN_AXE_MASS = 16;

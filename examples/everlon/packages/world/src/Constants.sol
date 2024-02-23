@@ -37,7 +37,6 @@ bytes32 constant StoneShinglesObjectID = bytes32(keccak256("stone-shingles"));
 bytes32 constant PolishedStoneObjectID = bytes32(keccak256("polished-stone"));
 bytes32 constant StoneCarvedObjectID = bytes32(keccak256("stone-carved"));
 bytes32 constant StoneBrickObjectID = bytes32(keccak256("stone-brick"));
-
 bytes32 constant RubbleObjectID = bytes32(keccak256("rubble"));
 bytes32 constant EmberstoneObjectID = bytes32(keccak256("emberstone"));
 bytes32 constant CobblestoneObjectID = bytes32(keccak256("cobblestone"));
@@ -81,6 +80,8 @@ bytes32 constant NeptuniumOreObjectID = bytes32(keccak256("neptunium-ore"));
 bytes32 constant NeptuniumBarObjectID = bytes32(keccak256("neptunium-bar"));
 bytes32 constant NeptuniumCubeObjectID = bytes32(keccak256("neptunium-cube"));
 bytes32 constant GrassObjectID = bytes32(keccak256("grass"));
+bytes32 constant HempObjectID = bytes32(keccak256("hemp"));
+bytes32 constant LilacObjectID = bytes32(keccak256("lilac"));
 bytes32 constant MuckGrassObjectID = bytes32(keccak256("muck-grass"));
 bytes32 constant MuckshroomObjectID = bytes32(keccak256("muckshroom"));
 bytes32 constant RedMushroomObjectID = bytes32(keccak256("red-mushroom"));
@@ -114,6 +115,7 @@ bytes32 constant OakLeafObjectID = bytes32(keccak256("oak-leaf"));
 bytes32 constant BirchLeafObjectID = bytes32(keccak256("birch-leaf"));
 bytes32 constant SakuraLeafObjectID = bytes32(keccak256("sakura-leaf"));
 bytes32 constant RubberLeafObjectID = bytes32(keccak256("rubber-leaf"));
+bytes32 constant DaylilyObjectID = bytes32(keccak256("daylily"));
 bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
@@ -123,6 +125,13 @@ bytes32 constant DiamondAxeObjectID = bytes32(keccak256("diamond-axe"));
 bytes32 constant DiamondPickObjectID = bytes32(keccak256("diamond-axe"));
 
 bytes32 constant DiamondCubeObjectID = bytes32(keccak256("diamond-cube"));
+
+bytes32 constant BlueDyeObjectID = bytes32(keccak256("blue-dye"));
+bytes32 constant BrownDyeObjectID = bytes32(keccak256("brown-dye"));
+bytes32 constant GreenDyeObjectID = bytes32(keccak256("green-dye"));
+bytes32 constant MagentaDyeObjectID = bytes32(keccak256("magenta-dye"));
+bytes32 constant OrangeDyeObjectID = bytes32(keccak256("orange-dye"));
+
 
 // Agents
 bytes32 constant BuilderObjectID = bytes32(keccak256("builder"));
@@ -143,6 +152,10 @@ uint256 constant COTTON_BUSH_MASS = 1;
 uint256 constant MOSS_MASS = 4;
 uint256 constant MUCK_GRASS_MASS = 4;
 uint256 constant GRASS_MASS = 4;
+uint256 constant HEMP_MASS = 1;
+uint256 constant LILAC_MASS = 1;
+uint256 constant DAYLILY_MASS = 1;
+
 uint256 constant MUCK_DIRT_MASS = 4;
 uint256 constant DIRT_MASS = 4;
 
@@ -254,6 +267,13 @@ uint256 constant MUCKSHROOM_MASS = 1;
 uint256 constant MUCKSHROOM_SPORES_MASS = 6;
 
 uint256 constant BELLFLOWER_MASS = 1;
+
+uint256 constant BLUE_DYE_MASS = 1;
+uint256 constant BROWN_DYE_MASS = 1;
+uint256 constant GREEN_DYE_MASS = 1;
+uint256 constant MAGENTA_DYE_MASS = 1;
+uint256 constant ORANGE_DYE_MASS = 1;
+
 uint256 constant BLUE_MUSHROOM_SPORE_MASS = 5;
 
 uint256 constant RED_MUSHROOM = 2;

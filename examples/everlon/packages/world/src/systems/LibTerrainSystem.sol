@@ -506,6 +506,7 @@ contract LibTerrainSystem is System {
       }
     }
 
+    properties.mass = CLAY_MASS;
     return TerrainData({ objectTypeId: ClayObjectID, properties: properties });
   }
 

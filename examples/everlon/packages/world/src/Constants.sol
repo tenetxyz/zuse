@@ -120,6 +120,9 @@ bytes32 constant DaylilyObjectID = bytes32(keccak256("daylily"));
 bytes32 constant AzaleaObjectID = bytes32(keccak256("azalea"));
 bytes32 constant RoseObjectID = bytes32(keccak256("rose"));
 bytes32 constant ChestObjectID = bytes32(keccak256("chest"));
+bytes32 constant ThermoblasterObjectID = bytes32(keccak256("thermoblaster"));
+bytes32 constant WorkbenchObjectID = bytes32(keccak256("workbench"));
+bytes32 constant DyeomaticObjectID = bytes32(keccak256("dye-o-matic"));
 bytes32 constant CobblestoneBrickObjectID = bytes32(keccak256("cobblestone-brick"));
 bytes32 constant WoodenPickObjectID = bytes32(keccak256("wooden-pick"));
 bytes32 constant WoodenAxeObjectID = bytes32(keccak256("wooden-axe"));
@@ -298,6 +301,9 @@ uint256 constant SAKURA_LEAF_MASS = 1;
 uint256 constant RUBBER_LEAF_MASS = 1;
 
 uint256 constant CHEST_MASS = 24;
+uint256 constant THERMOBLASTER_MASS = 63; //7 * 9 = 63
+uint256 constant WORKBENCH_MASS = 20; //4 * 5 = 20
+uint256 constant DYE_O_MATIC_MASS = 68; 
 
 uint256 constant BLUE_OAK_LUMBER_MASS = 2;
 uint256 constant BROWN_OAK_LUMBER_MASS = 2;

@@ -93,6 +93,11 @@ export default tenetMudConfig({
       openAccess: true,
       registerAsRoot: true,
     },
+    RecipeStations: {
+      name: "RecipeStations",
+      openAccess: true,
+      registerAsRoot: true,
+    },
     FaucetSystem: {
       name: "FaucetSystem",
       openAccess: true,

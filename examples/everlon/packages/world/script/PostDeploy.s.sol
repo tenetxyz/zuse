@@ -21,6 +21,7 @@ contract PostDeploy is Script {
     world.initRecipeColorOak();
     world.initRecipeColorCott();
     world.initRecipeColorGlass();
+    world.initRecipeStations();
 
     world.world_AirObjectSystem_registerObject();
 

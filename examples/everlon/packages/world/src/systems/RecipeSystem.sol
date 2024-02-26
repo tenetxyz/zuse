@@ -194,12 +194,10 @@ contract RecipeSystem is System {
     // recipeBasaltBrick
 
     // Recipe inputs
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = BasaltObjectID;
-    inputObjectTypeIds[1] = PaperObjectID;
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4;
-    inputObjectTypeAmounts[1] = 4;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -226,12 +224,10 @@ contract RecipeSystem is System {
     // recipeBasaltCarved
 
     // Recipe inputs
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = BasaltBrickObjectID;
-    inputObjectTypeIds[1] = PaperObjectID;
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4;
-    inputObjectTypeAmounts[1] = 4;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -259,12 +255,10 @@ contract RecipeSystem is System {
 
     // Identical structure to recipeBasaltCarved, with adjusted output type
     // Recipe inputs
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = BasaltBrickObjectID;
-    inputObjectTypeIds[1] = PaperObjectID;
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4;
-    inputObjectTypeAmounts[1] = 4;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -290,12 +284,10 @@ contract RecipeSystem is System {
     
     // recipeBasaltShingles
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = BasaltBrickObjectID;
-    inputObjectTypeIds[1] = PaperObjectID;
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4;
-    inputObjectTypeAmounts[1] = 4;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -305,35 +297,6 @@ contract RecipeSystem is System {
 
     outputObjectProperties = new ObjectProperties[](1);
     outputOutputProperties.mass = BASALT_SHINGLES_MASS;
-    outputObjectProperties[0] = outputOutputProperties;
-
-    newRecipeId = getUniqueEntity();
-    Recipes.set(
-      newRecipeId,
-      RecipesData({
-        inputObjectTypeIds: inputObjectTypeIds,
-        inputObjectTypeAmounts: inputObjectTypeAmounts,
-        outputObjectTypeIds: outputObjectTypeIds,
-        outputObjectTypeAmounts: outputObjectTypeAmounts,
-        outputObjectProperties: abi.encode(outputObjectProperties)
-      })
-    );
-
-    // recipePaper0
-
-    inputObjectTypeIds = new bytes32[](1);
-    inputObjectTypeIds[0] = OakLogObjectID;
-    inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 1;
-
-    // Recipe outputs
-    outputObjectTypeIds = new bytes32[](1);
-    outputObjectTypeIds[0] = PaperObjectID;
-    outputObjectTypeAmounts = new uint8[](1);
-    outputObjectTypeAmounts[0] = 4;
-
-    outputObjectProperties = new ObjectProperties[](1);
-    outputOutputProperties.mass = PAPER_MASS;
     outputObjectProperties[0] = outputOutputProperties;
 
     newRecipeId = getUniqueEntity();
@@ -475,12 +438,10 @@ contract RecipeSystem is System {
     // recipeClayBrick
 
     // Recipe inputs
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = ClayObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Clay
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -506,12 +467,10 @@ contract RecipeSystem is System {
 
     // recipeClayCarved
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = ClayBrickObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Clay Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = ClayCarvedObjectID; // TODO: Define ClayCarvedObjectID
@@ -538,12 +497,10 @@ contract RecipeSystem is System {
 
     // recipeClayPolished
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = ClayBrickObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Clay Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = ClayPolishedObjectID; // TODO: Define ClayPolishedObjectID
@@ -569,12 +526,10 @@ contract RecipeSystem is System {
 
     // recipeClayShingles
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = ClayBrickObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Clay Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = ClayShinglesObjectID; // TODO: Define ClayShinglesObjectID
@@ -599,12 +554,10 @@ contract RecipeSystem is System {
 
     // recipeCobblestoneBrick
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = CobblestoneObjectID; 
-    inputObjectTypeIds[1] = PaperObjectID; 
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Rubble
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = CobblestoneBrickObjectID; // TODO: Define CobblestoneBrickObjectID

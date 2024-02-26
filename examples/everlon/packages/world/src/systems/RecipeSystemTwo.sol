@@ -23,12 +23,10 @@ contract RecipeSystemTwo is System {
 
     // recipeGraniteBrick
 
-    bytes32[] memory inputObjectTypeIds = new bytes32[](2);
+    bytes32[] memory inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = GraniteObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    uint8[] memory inputObjectTypeAmounts = new uint8[](2);
+    uint8[] memory inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Granite
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     bytes32[] memory outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = GraniteBrickObjectID; // TODO: Define GraniteBrickObjectID
@@ -55,12 +53,10 @@ contract RecipeSystemTwo is System {
 
     // recipeGraniteCarved
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = GraniteBrickObjectID; // Defined in the previous recipe
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Granite Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = GraniteCarvedObjectID; // TODO: Define GraniteCarvedObjectID
@@ -85,12 +81,10 @@ contract RecipeSystemTwo is System {
 
     // recipeGranitePolished
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = GraniteBrickObjectID; // From Granite Brick recipe
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Granite Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = GranitePolishedObjectID;
@@ -116,12 +110,10 @@ contract RecipeSystemTwo is System {
 
     // recipeGraniteShingles
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = GraniteBrickObjectID; // From Granite Brick recipe
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Granite Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = GraniteShinglesObjectID; // TODO: Define GraniteShinglesObjectID
@@ -177,12 +169,10 @@ contract RecipeSystemTwo is System {
 
     // recipeLimestoneBrick
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = LimestoneObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Limestone
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = LimestoneBrickObjectID; // TODO: Define LimestoneBrickObjectID
@@ -207,12 +197,10 @@ contract RecipeSystemTwo is System {
 
     // recipeLimestoneCarved
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = LimestoneBrickObjectID; // From Limestone Brick recipe
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Limestone Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = LimestoneCarvedObjectID; // TODO: Define LimestoneCarvedObjectID
@@ -237,12 +225,10 @@ contract RecipeSystemTwo is System {
 
     // recipeLimestonePolished
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = LimestoneBrickObjectID; // From Limestone Brick recipe
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Limestone Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = LimestonePolishedObjectID; // TODO: Define LimestonePolishedObjectID
@@ -267,12 +253,10 @@ contract RecipeSystemTwo is System {
 
     // recipeLimestoneShingles
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = LimestoneBrickObjectID; // From Limestone Brick recipe
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Limestone Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = LimestoneShinglesObjectID; // TODO: Define LimestoneShinglesObjectID
@@ -532,12 +516,10 @@ contract RecipeSystemTwo is System {
 
     // recipeQuartziteBrick
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = QuartziteObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Quartzite
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = QuartziteBrickObjectID; // TODO: Define QuartziteBrickObjectID
@@ -562,12 +544,10 @@ contract RecipeSystemTwo is System {
 
     // recipeQuartziteCarved
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = QuartziteBrickObjectID; // From Quartzite Brick recipe
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Quartzite Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = QuartziteCarvedObjectID; // TODO: Define QuartziteCarvedObjectID
@@ -592,12 +572,10 @@ contract RecipeSystemTwo is System {
 
     // recipeQuartzitePolished
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = QuartziteBrickObjectID; // TODO: Ensure QuartziteBrickObjectID is defined
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Quartzite Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = QuartzitePolishedObjectID; // TODO: Define QuartzitePolishedObjectID
@@ -622,12 +600,10 @@ contract RecipeSystemTwo is System {
 
     // recipeQuartziteShingles
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = QuartziteBrickObjectID; // TODO: Ensure QuartziteBrickObjectID is defined
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Quartzite Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = QuartziteShinglesObjectID; // TODO: Define QuartziteShinglesObjectID

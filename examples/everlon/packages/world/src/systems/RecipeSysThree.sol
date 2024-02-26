@@ -344,12 +344,10 @@ contract RecipeSysThree is System {
 
     // recipeStoneBrick
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = StoneObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Stone
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = StoneBrickObjectID; // TODO: Define StoneBrickObjectID
@@ -374,12 +372,10 @@ contract RecipeSysThree is System {
 
     // recipeStoneCarved
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = StoneObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Stone
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = StoneCarvedObjectID; // TODO: Define StoneCarvedObjectID
@@ -404,12 +400,10 @@ contract RecipeSysThree is System {
 
     // recipeStonePolished
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = StoneObjectID; // Defined earlier
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Stone
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = PolishedStoneObjectID; // TODO: Define PolishedStoneObjectID
@@ -434,12 +428,10 @@ contract RecipeSysThree is System {
 
     // recipeStoneShingles
 
-    inputObjectTypeIds = new bytes32[](2);
+    inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = StoneBrickObjectID; // Assuming StoneBrickObjectID is for "stone brick"
-    inputObjectTypeIds[1] = PaperObjectID; // Defined earlier
-    inputObjectTypeAmounts = new uint8[](2);
+    inputObjectTypeAmounts = new uint8[](1);
     inputObjectTypeAmounts[0] = 4; // 4 Stone Brick
-    inputObjectTypeAmounts[1] = 1; // 1 Paper
 
     outputObjectTypeIds = new bytes32[](1);
     outputObjectTypeIds[0] = StoneShinglesObjectID; // TODO: Define StoneShinglesObjectID

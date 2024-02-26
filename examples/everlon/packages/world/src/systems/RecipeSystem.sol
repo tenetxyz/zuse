@@ -79,12 +79,12 @@ contract RecipeSystem is System {
     );
 
 
-    // 24 Oak Lumber -> 1 Chest
+    // 8 Oak Lumber -> 1 Chest
 
     inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = OakLumberObjectID;
     inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 24;
+    inputObjectTypeAmounts[0] = 8;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -107,12 +107,12 @@ contract RecipeSystem is System {
       })
     );
 
-    // 24 Birch Lumber -> 1 Chest
+    // 8 Birch Lumber -> 1 Chest
     
     inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = BirchLumberObjectID;
     inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 24;
+    inputObjectTypeAmounts[0] = 8;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -135,12 +135,12 @@ contract RecipeSystem is System {
       })
     );
 
-    // 24 Rubber Lumber -> 1 Chest
+    // 8 Rubber Lumber -> 1 Chest
     
     inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = RubberLumberObjectID;
     inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 24;
+    inputObjectTypeAmounts[0] = 8;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);
@@ -163,12 +163,12 @@ contract RecipeSystem is System {
       })
     );
 
-    // 24 Sakura Lumber -> 1 Chest
+    // 8 Sakura Lumber -> 1 Chest
     
     inputObjectTypeIds = new bytes32[](1);
     inputObjectTypeIds[0] = SakuraLumberObjectID;
     inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 24;
+    inputObjectTypeAmounts[0] = 8;
 
     // Recipe outputs
     outputObjectTypeIds = new bytes32[](1);

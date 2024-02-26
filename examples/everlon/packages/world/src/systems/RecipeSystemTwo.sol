@@ -484,36 +484,6 @@ contract RecipeSystemTwo is System {
         })
     );
 
-    // recipePurifyMuckshroom
-
-    inputObjectTypeIds = new bytes32[](2);
-    inputObjectTypeIds[0] = MuckshroomObjectID; // Assuming MuckshroomObjectID is defined
-    inputObjectTypeIds[1] = OakLumberObjectID; // TODO: Define LumberObjectID if using generic lumber instead of a specific type
-    inputObjectTypeAmounts = new uint8[](2);
-    inputObjectTypeAmounts[0] = 2; // 2 Muckshroom
-    inputObjectTypeAmounts[1] = 4; // 4 Lumber
-
-    outputObjectTypeIds = new bytes32[](1);
-    outputObjectTypeIds[0] = MuckshroomSporesObjectID; // TODO: Define MuckshroomSporesObjectID
-    outputObjectTypeAmounts = new uint8[](1);
-    outputObjectTypeAmounts[0] = 1; // 1 Muckshroom Spores
-
-    outputObjectProperties = new ObjectProperties[](1);
-    outputOutputProperties.mass = MUCKSHROOM_SPORES_MASS; // TODO: Define mass for Muckshroom Spores
-    outputObjectProperties[0] = outputOutputProperties;
-
-    newRecipeId = getUniqueEntity();
-    Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
-    );
-
     // recipeQuartziteBrick
 
     inputObjectTypeIds = new bytes32[](1);
@@ -625,35 +595,7 @@ contract RecipeSystemTwo is System {
             outputObjectProperties: abi.encode(outputObjectProperties)
         })
     );
-
-    // recipeRedMushroomSpores
-
-    inputObjectTypeIds = new bytes32[](1);
-    inputObjectTypeIds[0] = RedMushroomObjectID; // Assuming RedMushroomObjectID is defined
-    inputObjectTypeAmounts = new uint8[](1);
-    inputObjectTypeAmounts[0] = 2; // 2 Red Mushroom
-
-    outputObjectTypeIds = new bytes32[](1);
-    outputObjectTypeIds[0] = RedMushroomSporesObjectID; // TODO: Define RedMushroomSporesObjectID
-    outputObjectTypeAmounts = new uint8[](1);
-    outputObjectTypeAmounts[0] = 4; // 4 Red Mushroom Spores
-
-    outputObjectProperties = new ObjectProperties[](1);
-    outputOutputProperties.mass = RED_MUSHROOM_SPORES_MASS; // TODO: Define mass for Red Mushroom Spores
-    outputObjectProperties[0] = outputOutputProperties;
-
-    newRecipeId = getUniqueEntity();
-    Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
-    );
-
+    
     // recipeRubberLumber
 
     inputObjectTypeIds = new bytes32[](1);

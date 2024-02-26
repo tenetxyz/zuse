@@ -371,39 +371,6 @@ contract RecipeSystem is System {
       })
     );
 
-    // recipeBlueMushroomSpores
-
-    // Recipe inputs
-    inputObjectTypeIds = new bytes32[](2);
-    inputObjectTypeIds[0] = MuckshroomObjectID; // TODO: Define MuckshroomObjectID
-    inputObjectTypeIds[1] = BellflowerObjectID; // TODO: Define BellflowerObjectID
-    inputObjectTypeAmounts = new uint8[](2);
-    inputObjectTypeAmounts[0] = 3; // 3 Muckshroom
-    inputObjectTypeAmounts[1] = 2; // 2 Bellflower
-
-    // Recipe outputs
-    outputObjectTypeIds = new bytes32[](1);
-    outputObjectTypeIds[0] = BlueMushroomSporeObjectID; // TODO: Define BlueMushroomSporeObjectID
-    outputObjectTypeAmounts = new uint8[](1);
-    outputObjectTypeAmounts[0] = 1; // 1 Blue Mushroom Spore
-
-    outputObjectProperties = new ObjectProperties[](1);
-    outputOutputProperties.mass = BLUE_MUSHROOM_SPORE_MASS; // TODO: Define BLUE_MUSHROOM_SPORE_MASS and assign here
-    outputObjectProperties[0] = outputOutputProperties;
-
-    newRecipeId = getUniqueEntity();
-    Recipes.set(
-        newRecipeId,
-        RecipesData({
-            inputObjectTypeIds: inputObjectTypeIds,
-            inputObjectTypeAmounts: inputObjectTypeAmounts,
-            outputObjectTypeIds: outputObjectTypeIds,
-            outputObjectTypeAmounts: outputObjectTypeAmounts,
-            outputObjectProperties: abi.encode(outputObjectProperties)
-        })
-    );
-
-
     // recipeClay
 
     // Recipe inputs

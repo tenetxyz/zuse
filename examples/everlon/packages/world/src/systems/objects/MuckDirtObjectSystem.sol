@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, MuckDirtObjectID, MUCK_DIRT_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, MuckDirtObjectID, MUCK_DIRT_MASS } from "@tenet-world/src/Constants.sol";
 
 contract MuckDirtObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,8 +17,10 @@ contract MuckDirtObjectSystem is ObjectType {
       IWorld(world).world_MuckDirtObjectSy_exitWorld.selector,
       IWorld(world).world_MuckDirtObjectSy_eventHandler.selector,
       IWorld(world).world_MuckDirtObjectSy_neighbourEventHandler.selector,
-      "Muck Dirt",
-      ""
+      NUM_BLOCK_STACKABLE,
+      0,
+      0,
+      "Muck Dirt"
     );
   }
 

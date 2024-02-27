@@ -126,7 +126,9 @@ contract VelocityRuleSystem is System {
             InventoryObject.getObjectProperties(IStore(worldAddress), inventoryIds[i][0]),
             (ObjectProperties)
           );
-          inventoryMass += objectProperties.mass;
+          inventoryMass +=
+            (objectProperties.mass) *
+            InventoryObject.getNumObjects(IStore(worldAddress), inventoryIds[i][0]);
         }
         // add inventory mass to resourceRequired
         resourceRequired += (inventoryMass / 50);

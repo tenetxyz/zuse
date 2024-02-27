@@ -422,7 +422,7 @@ contract LibTerrainSystem is System {
     }
 
     uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, z + z);
+    uint16 hash2 = getCoordHash(y, x + z);
     if (hash1 > 10 && hash1 <= 60 && hash2 > 10 && hash2 <= 60) {
       if (biome == uint8(Biome.Mountains)) {
         properties.mass = COAL_ORE_MASS;
@@ -482,7 +482,7 @@ contract LibTerrainSystem is System {
     }
 
     uint16 hash1 = getCoordHash(x, z);
-    uint16 hash2 = getCoordHash(y, z + z);
+    uint16 hash2 = getCoordHash(y, x + z);
     if (hash1 <= 10 || hash1 > 50) {
       if (hash1 <= 10 && hash2 <= 10) {
         properties.mass = DIAMOND_ORE_MASS;
@@ -506,6 +506,7 @@ contract LibTerrainSystem is System {
       }
     }
 
+    properties.mass = CLAY_MASS;
     return TerrainData({ objectTypeId: ClayObjectID, properties: properties });
   }
 

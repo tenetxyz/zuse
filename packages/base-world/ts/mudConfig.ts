@@ -85,7 +85,31 @@ const WORLD_TABLES: Record<string, TableConfig> = {
     },
     schema: {
       objectTypeId: "bytes32",
+      numObjects: "uint8",
+      numUsesLeft: "uint16", // 0 = infinite
       objectProperties: "bytes", // ObjectProperties
+    },
+  },
+  Equipped: {
+    registerAsRoot: true,
+    keySchema: {
+      objectEntityId: "bytes32",
+    },
+    schema: {
+      inventoryId: "bytes32",
+    },
+  },
+  Recipes: {
+    registerAsRoot: true,
+    keySchema: {
+      recipeId: "bytes32",
+    },
+    schema: {
+      inputObjectTypeIds: "bytes32[]",
+      inputObjectTypeAmounts: "uint8[]",
+      outputObjectTypeIds: "bytes32[]",
+      outputObjectTypeAmounts: "uint8[]",
+      outputObjectProperties: "bytes", // ObjectProperties[]
     },
   },
   AgentMetadata: {
@@ -131,6 +155,12 @@ const WORLD_MODULES = [
     name: "HasKeysModule",
     root: true,
     args: [resolveTableId("OwnedBy")],
+  },
+  {
+    // TODO: This is only needed for tests, so we should remove it from production
+    name: "KeysInTableModule",
+    root: true,
+    args: [resolveTableId("Recipes")],
   },
   {
     name: "HasKeysModule",
@@ -188,6 +218,22 @@ const WORLD_SYSTEMS = {
   ExternalObjectSystem: {
     name: "ExternalObjectSy",
     openAccess: true,
+    registerAsRoot: true,
+  },
+  InventorySystem: {
+    name: "InventorySystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  CraftSystem: {
+    name: "CraftSystem",
+    openAccess: true,
+    registerAsRoot: true,
+  },
+  InternalInventorySystem: {
+    name: "InternalInventor",
+    openAccess: false,
+    accessList: ["InventorySystem", "BuildSystem", "MineSystem", "MoveSystem", "ActivateSystem", "CraftSystem"],
     registerAsRoot: true,
   },
   EventApprovalsSystem: {

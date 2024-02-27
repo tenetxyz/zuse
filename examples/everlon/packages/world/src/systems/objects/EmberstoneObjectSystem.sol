@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, EmberstoneObjectID, EMBERSTONE_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, EmberstoneObjectID, EMBERSTONE_MASS } from "@tenet-world/src/Constants.sol";
 
 contract EmberstoneObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,8 +17,10 @@ contract EmberstoneObjectSystem is ObjectType {
       IWorld(world).world_EmberstoneObject_exitWorld.selector,
       IWorld(world).world_EmberstoneObject_eventHandler.selector,
       IWorld(world).world_EmberstoneObject_neighbourEventHandler.selector,
-      "Emberstone",
-      ""
+      NUM_BLOCK_STACKABLE,
+      0,
+      0,
+      "Emberstone"
     );
   }
 

@@ -11,5 +11,7 @@ import { ReverseObjectEntity, ReverseObjectEntityTableId } from "./tables/Revers
 import { OwnedBy, OwnedByTableId } from "./tables/OwnedBy.sol";
 import { Inventory, InventoryTableId } from "./tables/Inventory.sol";
 import { InventoryObject, InventoryObjectData, InventoryObjectTableId } from "./tables/InventoryObject.sol";
+import { Equipped, EquippedTableId } from "./tables/Equipped.sol";
+import { Recipes, RecipesData, RecipesTableId } from "./tables/Recipes.sol";
 import { AgentMetadata, AgentMetadataData, AgentMetadataTableId } from "./tables/AgentMetadata.sol";
 import { Mind, MindData, MindTableId } from "./tables/Mind.sol";

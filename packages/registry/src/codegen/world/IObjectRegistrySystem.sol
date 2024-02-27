@@ -11,7 +11,9 @@ interface IObjectRegistrySystem {
     bytes4 exitWorldSelector,
     bytes4 eventHandlerSelector,
     bytes4 neighbourEventHandlerSelector,
-    string memory name,
-    string memory description
+    uint8 stackable,
+    uint16 maxUses,
+    uint16 damage,
+    string memory name
   ) external;
 }

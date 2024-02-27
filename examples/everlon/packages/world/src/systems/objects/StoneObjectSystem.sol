@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, StoneObjectID, STONE_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, StoneObjectID, STONE_MASS } from "@tenet-world/src/Constants.sol";
 
 contract StoneObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,8 +17,10 @@ contract StoneObjectSystem is ObjectType {
       IWorld(world).world_StoneObjectSyste_exitWorld.selector,
       IWorld(world).world_StoneObjectSyste_eventHandler.selector,
       IWorld(world).world_StoneObjectSyste_neighbourEventHandler.selector,
-      "Stone",
-      ""
+      NUM_BLOCK_STACKABLE,
+      0,
+      0,
+      "Stone"
     );
   }
 

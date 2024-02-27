@@ -13,8 +13,10 @@ contract ObjectRegistrySystem is System {
     bytes4 exitWorldSelector,
     bytes4 eventHandlerSelector,
     bytes4 neighbourEventHandlerSelector,
-    string memory name,
-    string memory description
+    uint8 stackable,
+    uint16 maxUses,
+    uint16 damage,
+    string memory name
   ) public {
     require(
       !hasKey(ObjectTypeRegistryTableId, ObjectTypeRegistry.encodeKeyTuple(objectTypeId)),
@@ -33,8 +35,10 @@ contract ObjectRegistrySystem is System {
         exitWorldSelector: exitWorldSelector,
         eventHandlerSelector: eventHandlerSelector,
         neighbourEventHandlerSelector: neighbourEventHandlerSelector,
-        name: name,
-        description: description
+        stackable: stackable,
+        maxUses: maxUses,
+        damage: damage,
+        name: name
       })
     );
   }

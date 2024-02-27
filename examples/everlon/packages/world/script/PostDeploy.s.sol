@@ -14,6 +14,15 @@ contract PostDeploy is Script {
 
     IWorld world = IWorld(worldAddress);
 
+    world.initRecipes();
+    world.initRecipesTwo();
+    world.initRecipesThree();
+    world.initRecipeSysDye();
+    world.initRecipeColorOak();
+    world.initRecipeColorCott();
+    world.initRecipeColorGlass();
+    world.initRecipeStations();
+
     world.world_AirObjectSystem_registerObject();
 
     world.world_SnowObjectSystem_registerObject();
@@ -33,6 +42,7 @@ contract PostDeploy is Script {
 
     world.world_OakLogObjectSyst_registerObject();
     world.world_OakLeafObjectSys_registerObject();
+    world.world_OakLumberObjectS_registerObject();
     world.world_BirchLogObjectSy_registerObject();
     world.world_BirchLeafObjectS_registerObject();
     world.world_SakuraLogObjectS_registerObject();
@@ -62,6 +72,11 @@ contract PostDeploy is Script {
 
     world.world_LavaObjectSystem_registerObject();
     world.world_BedrockObjectSys_registerObject();
+
+    world.world_ChestObjectSyste_registerObject();
+
+    // Items
+    world.world_WoodenPickObject_registerObject();
 
     // Agents
     world.world_BuilderObjectSys_registerObject();

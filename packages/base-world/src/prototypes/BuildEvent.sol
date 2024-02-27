@@ -2,13 +2,15 @@
 pragma solidity >=0.8.0;
 
 import { IWorld } from "@tenet-base-world/src/codegen/world/IWorld.sol";
+import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { Event } from "@tenet-base-world/src/prototypes/Event.sol";
 
 import { getKeysWithValue } from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
 
 import { ObjectType } from "@tenet-base-world/src/codegen/tables/ObjectType.sol";
 import { Inventory, InventoryTableId } from "@tenet-base-world/src/codegen/tables/Inventory.sol";
-import { InventoryObject } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
+import { InventoryObject, InventoryObjectData } from "@tenet-base-world/src/codegen/tables/InventoryObject.sol";
+import { Equipped } from "@tenet-base-world/src/codegen/tables/Equipped.sol";
 import { ObjectEntity } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { IWorldBuildEventSystem } from "@tenet-base-simulator/src/codegen/world/IWorldBuildEventSystem.sol";
@@ -68,10 +70,13 @@ abstract contract BuildEvent is Event {
       );
     } else {
       require(ObjectType.get(eventEntityId) == emptyObjectId(), "BuildEvent: Object type id is not empty");
-
+    }
+    address caller = _msgSender();
+    if (caller != _world() && caller != getSimulatorAddress()) {
       bytes32[][] memory inventoryIds = getKeysWithValue(InventoryTableId, Inventory.encode(objectEntityId));
       require(inventoryIds.length == 0, "BuildEvent: Cannot build where there are dropped items");
     }
+
     ObjectProperties memory requestedProperties = IWorld(_world()).enterWorld(objectTypeId, coord, objectEntityId);
     if (isNewEntity) {
       ObjectProperties memory properties = IWorld(_world()).getTerrainObjectProperties(coord, requestedProperties);
@@ -80,11 +85,14 @@ abstract contract BuildEvent is Event {
 
     ObjectType.set(eventEntityId, objectTypeId);
 
-    address caller = _msgSender();
     if (caller != _world() && caller != getSimulatorAddress()) {
       bytes32 inventoryId = getInventoryId(eventData);
-      Inventory.deleteRecord(inventoryId);
-      InventoryObject.deleteRecord(inventoryId);
+      IWorld(_world()).removeObjectFromInventory(inventoryId, 1);
+
+      bytes32 equippedInventoryId = Equipped.get(actingObjectEntityId);
+      if (equippedInventoryId == inventoryId) {
+        Equipped.deleteRecord(actingObjectEntityId);
+      }
     }
 
     IWorldBuildEventSystem(getSimulatorAddress()).onBuildEvent(

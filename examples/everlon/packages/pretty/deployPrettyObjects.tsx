@@ -152,8 +152,10 @@ async function main() {
       exitWorldSelector,
       eventHandlerSelector,
       neighbourEventHandlerSelector,
-      objectTypeDisplayName,
-      ""
+      99,
+      0,
+      0,
+      objectTypeDisplayName
     );
 
     // Check the status of each transaction

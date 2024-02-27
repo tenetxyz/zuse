@@ -10,7 +10,7 @@ import { ReversePosition, ReversePositionTableId } from "@tenet-base-world/src/c
 import { ObjectEntity, ObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ObjectEntity.sol";
 import { ReverseObjectEntity, ReverseObjectEntityTableId } from "@tenet-base-world/src/codegen/tables/ReverseObjectEntity.sol";
 
-import { VoxelCoord } from "@tenet-utils/src/Types.sol";
+import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { getVonNeumannNeighbours, getMooreNeighbours } from "@tenet-utils/src/VoxelCoordUtils.sol";
 
 function positionDataToVoxelCoord(PositionData memory coord) pure returns (VoxelCoord memory) {

@@ -14,8 +14,10 @@ export default mudConfig({
         exitWorldSelector: "bytes4",
         eventHandlerSelector: "bytes4",
         neighbourEventHandlerSelector: "bytes4",
+        stackable: "uint8",
+        maxUses: "uint16",
+        damage: "uint16",
         name: "string",
-        description: "string",
       },
     },
     DecisionRuleRegistry: {

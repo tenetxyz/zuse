@@ -22,6 +22,8 @@ bytes32 constant InventoryObjectTableId = _tableId;
 
 struct InventoryObjectData {
   bytes32 objectTypeId;
+  uint8 numObjects;
+  uint16 numUsesLeft;
   bytes objectProperties;
 }
 
@@ -36,9 +38,11 @@ library InventoryObject {
 
   /** Get the table's value schema */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](2);
+    SchemaType[] memory _schema = new SchemaType[](4);
     _schema[0] = SchemaType.BYTES32;
-    _schema[1] = SchemaType.BYTES;
+    _schema[1] = SchemaType.UINT8;
+    _schema[2] = SchemaType.UINT16;
+    _schema[3] = SchemaType.BYTES;
 
     return SchemaLib.encode(_schema);
   }
@@ -51,9 +55,11 @@ library InventoryObject {
 
   /** Get the table's field names */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
+    fieldNames = new string[](4);
     fieldNames[0] = "objectTypeId";
-    fieldNames[1] = "objectProperties";
+    fieldNames[1] = "numObjects";
+    fieldNames[2] = "numUsesLeft";
+    fieldNames[3] = "objectProperties";
   }
 
   /** Register the table's key schema, value schema, key names and value names */
@@ -100,12 +106,80 @@ library InventoryObject {
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((objectTypeId)), getValueSchema());
   }
 
+  /** Get numObjects */
+  function getNumObjects(bytes32 inventoryId) internal view returns (uint8 numObjects) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1, getValueSchema());
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Get numObjects (using the specified store) */
+  function getNumObjects(IStore _store, bytes32 inventoryId) internal view returns (uint8 numObjects) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1, getValueSchema());
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Set numObjects */
+  function setNumObjects(bytes32 inventoryId, uint8 numObjects) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((numObjects)), getValueSchema());
+  }
+
+  /** Set numObjects (using the specified store) */
+  function setNumObjects(IStore _store, bytes32 inventoryId, uint8 numObjects) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((numObjects)), getValueSchema());
+  }
+
+  /** Get numUsesLeft */
+  function getNumUsesLeft(bytes32 inventoryId) internal view returns (uint16 numUsesLeft) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2, getValueSchema());
+    return (uint16(Bytes.slice2(_blob, 0)));
+  }
+
+  /** Get numUsesLeft (using the specified store) */
+  function getNumUsesLeft(IStore _store, bytes32 inventoryId) internal view returns (uint16 numUsesLeft) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2, getValueSchema());
+    return (uint16(Bytes.slice2(_blob, 0)));
+  }
+
+  /** Set numUsesLeft */
+  function setNumUsesLeft(bytes32 inventoryId, uint16 numUsesLeft) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((numUsesLeft)), getValueSchema());
+  }
+
+  /** Set numUsesLeft (using the specified store) */
+  function setNumUsesLeft(IStore _store, bytes32 inventoryId, uint16 numUsesLeft) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = inventoryId;
+
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((numUsesLeft)), getValueSchema());
+  }
+
   /** Get objectProperties */
   function getObjectProperties(bytes32 inventoryId) internal view returns (bytes memory objectProperties) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1, getValueSchema());
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3, getValueSchema());
     return (bytes(_blob));
   }
 
@@ -117,7 +191,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 1, getValueSchema());
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3, getValueSchema());
     return (bytes(_blob));
   }
 
@@ -126,7 +200,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, bytes((objectProperties)), getValueSchema());
+    StoreSwitch.setField(_tableId, _keyTuple, 3, bytes((objectProperties)), getValueSchema());
   }
 
   /** Set objectProperties (using the specified store) */
@@ -134,7 +208,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    _store.setField(_tableId, _keyTuple, 1, bytes((objectProperties)), getValueSchema());
+    _store.setField(_tableId, _keyTuple, 3, bytes((objectProperties)), getValueSchema());
   }
 
   /** Get the length of objectProperties */
@@ -142,7 +216,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 1, getValueSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 3, getValueSchema());
     unchecked {
       return _byteLength / 1;
     }
@@ -153,7 +227,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 1, getValueSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 3, getValueSchema());
     unchecked {
       return _byteLength / 1;
     }
@@ -171,7 +245,7 @@ library InventoryObject {
       bytes memory _blob = StoreSwitch.getFieldSlice(
         _tableId,
         _keyTuple,
-        1,
+        3,
         getValueSchema(),
         _index * 1,
         (_index + 1) * 1
@@ -193,7 +267,7 @@ library InventoryObject {
     _keyTuple[0] = inventoryId;
 
     unchecked {
-      bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 1, getValueSchema(), _index * 1, (_index + 1) * 1);
+      bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 3, getValueSchema(), _index * 1, (_index + 1) * 1);
       return (bytes(_blob));
     }
   }
@@ -203,7 +277,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 1, bytes((_slice)), getValueSchema());
+    StoreSwitch.pushToField(_tableId, _keyTuple, 3, bytes((_slice)), getValueSchema());
   }
 
   /** Push a slice to objectProperties (using the specified store) */
@@ -211,7 +285,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    _store.pushToField(_tableId, _keyTuple, 1, bytes((_slice)), getValueSchema());
+    _store.pushToField(_tableId, _keyTuple, 3, bytes((_slice)), getValueSchema());
   }
 
   /** Pop a slice from objectProperties */
@@ -219,7 +293,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 1, 1, getValueSchema());
+    StoreSwitch.popFromField(_tableId, _keyTuple, 3, 1, getValueSchema());
   }
 
   /** Pop a slice from objectProperties (using the specified store) */
@@ -227,7 +301,7 @@ library InventoryObject {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
 
-    _store.popFromField(_tableId, _keyTuple, 1, 1, getValueSchema());
+    _store.popFromField(_tableId, _keyTuple, 3, 1, getValueSchema());
   }
 
   /**
@@ -239,7 +313,7 @@ library InventoryObject {
     _keyTuple[0] = inventoryId;
 
     unchecked {
-      StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)), getValueSchema());
+      StoreSwitch.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)), getValueSchema());
     }
   }
 
@@ -252,7 +326,7 @@ library InventoryObject {
     _keyTuple[0] = inventoryId;
 
     unchecked {
-      _store.updateInField(_tableId, _keyTuple, 1, _index * 1, bytes((_slice)), getValueSchema());
+      _store.updateInField(_tableId, _keyTuple, 3, _index * 1, bytes((_slice)), getValueSchema());
     }
   }
 
@@ -275,8 +349,14 @@ library InventoryObject {
   }
 
   /** Set the full data using individual values */
-  function set(bytes32 inventoryId, bytes32 objectTypeId, bytes memory objectProperties) internal {
-    bytes memory _data = encode(objectTypeId, objectProperties);
+  function set(
+    bytes32 inventoryId,
+    bytes32 objectTypeId,
+    uint8 numObjects,
+    uint16 numUsesLeft,
+    bytes memory objectProperties
+  ) internal {
+    bytes memory _data = encode(objectTypeId, numObjects, numUsesLeft, objectProperties);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
@@ -285,8 +365,15 @@ library InventoryObject {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, bytes32 inventoryId, bytes32 objectTypeId, bytes memory objectProperties) internal {
-    bytes memory _data = encode(objectTypeId, objectProperties);
+  function set(
+    IStore _store,
+    bytes32 inventoryId,
+    bytes32 objectTypeId,
+    uint8 numObjects,
+    uint16 numUsesLeft,
+    bytes memory objectProperties
+  ) internal {
+    bytes memory _data = encode(objectTypeId, numObjects, numUsesLeft, objectProperties);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = inventoryId;
@@ -296,12 +383,12 @@ library InventoryObject {
 
   /** Set the full data using the data struct */
   function set(bytes32 inventoryId, InventoryObjectData memory _table) internal {
-    set(inventoryId, _table.objectTypeId, _table.objectProperties);
+    set(inventoryId, _table.objectTypeId, _table.numObjects, _table.numUsesLeft, _table.objectProperties);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, bytes32 inventoryId, InventoryObjectData memory _table) internal {
-    set(_store, inventoryId, _table.objectTypeId, _table.objectProperties);
+    set(_store, inventoryId, _table.objectTypeId, _table.numObjects, _table.numUsesLeft, _table.objectProperties);
   }
 
   /**
@@ -309,32 +396,41 @@ library InventoryObject {
    * Undefined behaviour for invalid blobs.
    */
   function decode(bytes memory _blob) internal pure returns (InventoryObjectData memory _table) {
-    // 32 is the total byte length of static data
-    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 32));
+    // 35 is the total byte length of static data
+    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 35));
 
     _table.objectTypeId = (Bytes.slice32(_blob, 0));
 
+    _table.numObjects = (uint8(Bytes.slice1(_blob, 32)));
+
+    _table.numUsesLeft = (uint16(Bytes.slice2(_blob, 33)));
+
     // Store trims the blob if dynamic fields are all empty
-    if (_blob.length > 32) {
+    if (_blob.length > 35) {
       // skip static data length + dynamic lengths word
-      uint256 _start = 64;
+      uint256 _start = 67;
       uint256 _end;
       unchecked {
-        _end = 64 + _encodedLengths.atIndex(0);
+        _end = 67 + _encodedLengths.atIndex(0);
       }
       _table.objectProperties = (bytes(SliceLib.getSubslice(_blob, _start, _end).toBytes()));
     }
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bytes32 objectTypeId, bytes memory objectProperties) internal pure returns (bytes memory) {
+  function encode(
+    bytes32 objectTypeId,
+    uint8 numObjects,
+    uint16 numUsesLeft,
+    bytes memory objectProperties
+  ) internal pure returns (bytes memory) {
     PackedCounter _encodedLengths;
     // Lengths are effectively checked during copy by 2**40 bytes exceeding gas limits
     unchecked {
       _encodedLengths = PackedCounterLib.pack(bytes(objectProperties).length);
     }
 
-    return abi.encodePacked(objectTypeId, _encodedLengths.unwrap(), bytes((objectProperties)));
+    return abi.encodePacked(objectTypeId, numObjects, numUsesLeft, _encodedLengths.unwrap(), bytes((objectProperties)));
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

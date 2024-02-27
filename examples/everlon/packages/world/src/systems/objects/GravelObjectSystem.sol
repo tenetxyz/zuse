@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, GravelObjectID, GRAVEL_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, GravelObjectID, GRAVEL_MASS } from "@tenet-world/src/Constants.sol";
 
 contract GravelObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,8 +17,10 @@ contract GravelObjectSystem is ObjectType {
       IWorld(world).world_GravelObjectSyst_exitWorld.selector,
       IWorld(world).world_GravelObjectSyst_eventHandler.selector,
       IWorld(world).world_GravelObjectSyst_neighbourEventHandler.selector,
-      "Gravel",
-      ""
+      NUM_BLOCK_STACKABLE,
+      0,
+      0,
+      "Gravel"
     );
   }
 

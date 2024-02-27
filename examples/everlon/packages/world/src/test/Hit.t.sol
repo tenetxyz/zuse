@@ -107,6 +107,10 @@ contract HitTest is MudTest {
       bytes32 agentInventoryId = agentObjects[0][0];
       bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
       assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+      assertTrue(
+        InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+        "Agent does not have correct number of mined objects in inventory"
+      );
     }
 
     vm.stopPrank();
@@ -162,6 +166,10 @@ contract HitTest is MudTest {
       bytes32 agentInventoryId = agentObjects[0][0];
       bytes32 agentInventoryObjectTypeId = InventoryObject.getObjectTypeId(store, agentInventoryId);
       assertTrue(agentInventoryObjectTypeId == objectTypeId, "Agent does not have mined object in inventory");
+      assertTrue(
+        InventoryObject.getNumObjects(store, agentInventoryId) == 1,
+        "Agent does not have correct number of mined objects in inventory"
+      );
     }
 
     vm.stopPrank();

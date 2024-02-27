@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, OakLogObjectID, OAK_LOG_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, OakLogObjectID, OAK_LOG_MASS } from "@tenet-world/src/Constants.sol";
 
 contract OakLogObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,8 +17,10 @@ contract OakLogObjectSystem is ObjectType {
       IWorld(world).world_OakLogObjectSyst_exitWorld.selector,
       IWorld(world).world_OakLogObjectSyst_eventHandler.selector,
       IWorld(world).world_OakLogObjectSyst_neighbourEventHandler.selector,
-      "Oak Log",
-      ""
+      NUM_BLOCK_STACKABLE,
+      0,
+      0,
+      "Oak Log"
     );
   }
 

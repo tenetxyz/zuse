@@ -58,6 +58,46 @@ export default tenetMudConfig({
     },
   },
   systems: {
+    RecipeSystem: {
+      name: "RecipeSystem",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    RecipeSystemTwo: {
+      name: "RecipeSystemTwo",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    RecipeSysThree: {
+      name: "RecipeSysThree",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    RecipeSysDye: {
+      name: "RecipeSysDye",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    RecipeColorOak: {
+      name: "RecipeColorOak",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    RecipeColorCott: {
+      name: "RecipeColorCott",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    RecipeColorGlass: {
+      name: "RecipeColorGlass",
+      openAccess: true,
+      registerAsRoot: true,
+    },
+    RecipeStations: {
+      name: "RecipeStations",
+      openAccess: true,
+      registerAsRoot: true,
+    },
     FaucetSystem: {
       name: "FaucetSystem",
       openAccess: true,

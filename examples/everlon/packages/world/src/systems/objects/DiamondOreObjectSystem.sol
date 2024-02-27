@@ -5,7 +5,7 @@ import { IWorld } from "@tenet-world/src/codegen/world/IWorld.sol";
 import { ObjectType } from "@tenet-base-world/src/prototypes/ObjectType.sol";
 import { IObjectRegistrySystem } from "@tenet-registry/src/codegen/world/IObjectRegistrySystem.sol";
 import { VoxelCoord, ObjectProperties, Action } from "@tenet-utils/src/Types.sol";
-import { REGISTRY_ADDRESS, DiamondOreObjectID, DIAMOND_ORE_MASS } from "@tenet-world/src/Constants.sol";
+import { REGISTRY_ADDRESS, NUM_BLOCK_STACKABLE, DiamondOreObjectID, DIAMOND_ORE_MASS } from "@tenet-world/src/Constants.sol";
 
 contract DiamondOreObjectSystem is ObjectType {
   function registerObject() public {
@@ -17,8 +17,10 @@ contract DiamondOreObjectSystem is ObjectType {
       IWorld(world).world_DiamondOreObject_exitWorld.selector,
       IWorld(world).world_DiamondOreObject_eventHandler.selector,
       IWorld(world).world_DiamondOreObject_neighbourEventHandler.selector,
-      "Diamond Ore",
-      ""
+      NUM_BLOCK_STACKABLE,
+      0,
+      0,
+      "Diamond Ore"
     );
   }
 

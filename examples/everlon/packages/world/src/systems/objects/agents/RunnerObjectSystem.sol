@@ -22,8 +22,10 @@ contract RunnerObjectSystem is AgentType {
       IWorld(world).world_RunnerObjectSyst_exitWorld.selector,
       IWorld(world).world_RunnerObjectSyst_eventHandler.selector,
       IWorld(world).world_RunnerObjectSyst_neighbourEventHandler.selector,
-      "Runner",
-      ""
+      1,
+      0,
+      0,
+      "Runner"
     );
   }
 

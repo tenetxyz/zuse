@@ -8,10 +8,9 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { VoxelCoord, ObjectProperties } from "@tenet-utils/src/Types.sol";
 import { safeCall } from "@tenet-utils/src/CallUtils.sol";
 import { getEnterWorldSelector, getExitWorldSelector } from "@tenet-registry/src/Utils.sol";
+import { REGISTRY_ADDRESS } from "@tenet-base-world/src/Constants.sol";
 
 abstract contract ObjectSystem is System {
-  function getRegistryAddress() internal pure virtual returns (address);
-
   function decodeToObjectProperties(bytes memory data) external pure returns (ObjectProperties memory) {
     return abi.decode(data, (ObjectProperties));
   }
@@ -22,7 +21,7 @@ abstract contract ObjectSystem is System {
     bytes32 objectEntityId
   ) public virtual returns (ObjectProperties memory requestedProperties) {
     (address objectAddress, bytes4 objectEnterWorldSelector) = getEnterWorldSelector(
-      IStore(getRegistryAddress()),
+      IStore(REGISTRY_ADDRESS),
       objectTypeId
     );
     require(
@@ -46,7 +45,7 @@ abstract contract ObjectSystem is System {
 
   function exitWorld(bytes32 objectTypeId, VoxelCoord memory coord, bytes32 objectEntityId) public virtual {
     (address objectAddress, bytes4 objectExitWorldSelector) = getEnterWorldSelector(
-      IStore(getRegistryAddress()),
+      IStore(REGISTRY_ADDRESS),
       objectTypeId
     );
     require(
